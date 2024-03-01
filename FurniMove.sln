@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FurniMove", "FurniMove\FurniMove.csproj", "{BF40AE83-0F7C-4A44-8332-04D066D31879}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF40AE83-0F7C-4A44-8332-04D066D31879}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF40AE83-0F7C-4A44-8332-04D066D31879}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF40AE83-0F7C-4A44-8332-04D066D31879}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF40AE83-0F7C-4A44-8332-04D066D31879}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AADA1972-B46D-485D-B5F5-F8748FC5520F}
+	EndGlobalSection
+EndGlobal
