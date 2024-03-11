@@ -96,5 +96,14 @@ namespace FurniMove.Controllers
                 return StatusCode((int)HttpStatusCode.InternalServerError, e.Message); ;
             }
         }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+
+            return Ok();
+        }
+
     }
 }
