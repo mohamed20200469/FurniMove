@@ -25,6 +25,15 @@ namespace FurniMove.Controllers
 
         }
 
+        [AllowAnonymous]
+        [HttpGet("GetAllMoveRequests")]
+        public ActionResult<ICollection<MoveRequest>> GetAllMoveRequests()
+        {
+            var moveRequests = _moveRequestService.GetMoveRequests();
+
+            return Ok(moveRequests);
+        }
+
         [HttpGet("GetMoveRequestById")]
         public ActionResult<MoveRequest> GetMoveRequestById(int id)
         {

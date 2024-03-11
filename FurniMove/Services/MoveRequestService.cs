@@ -21,5 +21,10 @@ namespace FurniMove.Services
         {
             return _moveRequestRepo.GetMoveRequestById(id);
         }
+
+        public ICollection<MoveRequest> GetMoveRequests()
+        {
+            return _moveRequestRepo.GetMoveRequests();
+        }
     }
 }
