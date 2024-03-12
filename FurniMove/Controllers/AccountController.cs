@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace FurniMove.Controllers
 {
@@ -40,8 +41,10 @@ namespace FurniMove.Controllers
             return Ok(
                 new NewUserDTO
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
                     Token = _tokenService.CreateToken(user),
                     Role = user.Role
                 }
@@ -103,6 +106,20 @@ namespace FurniMove.Controllers
             await _signInManager.SignOutAsync();
 
             return Ok();
+        }
+
+        [HttpPatch("addPhoneNumber")]
+        public async Task<IActionResult> AddPhoneNumber(string userId, string phoneNumber)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+            string regexPattern = @"^(010|011|012|015)\d{8}$";
+            if (Regex.IsMatch(phoneNumber, regexPattern))
+            {
+                await _userManager.SetPhoneNumberAsync(user, phoneNumber);
+                return Ok();
+            }
+            return BadRequest("Incorrect number");
         }
 
     }
