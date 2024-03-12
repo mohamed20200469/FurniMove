@@ -24,7 +24,7 @@ namespace FurniMove.Controllers
             _moveOfferService = moveOfferService;
 
         }
-
+        // Hello there
         [AllowAnonymous]
         [HttpGet("GetAllMoveRequests")]
         public ActionResult<ICollection<MoveRequest>> GetAllMoveRequests()
