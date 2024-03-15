@@ -31,12 +31,22 @@ builder.Services.AddScoped<IApplianceRepo, ApplianceRepo>();
 builder.Services.AddScoped<ITruckRepo, TruckRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
+var emailConfiguration = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+
+builder.Services.AddSingleton(emailConfiguration);
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
     options.Password.RequiredLength = 8;
-}).AddEntityFrameworkStores<AppDbContext>();
+    options.Password.RequiredUniqueChars = 1;
+}).AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {
