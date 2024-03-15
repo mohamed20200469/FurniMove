@@ -47,6 +47,7 @@ namespace FurniMove.Controllers
                     Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
                     Token = _tokenService.CreateToken(user),
                     Role = user.Role
@@ -80,8 +81,11 @@ namespace FurniMove.Controllers
                         return Ok(
                             new NewUserDTO
                             {
+                                Id = appUser.Id,
                                 UserName = appUser.UserName,
                                 Email = appUser.Email,
+                                EmailConfirmed = appUser.EmailConfirmed,
+                                PhoneNumber = appUser.PhoneNumber,
                                 Token = _tokenService.CreateToken(appUser),
                                 Role = appUser.Role
                             }
