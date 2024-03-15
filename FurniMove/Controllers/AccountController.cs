@@ -1,10 +1,10 @@
 ﻿using FurniMove.DTOs;
 using FurniMove.Interfaces.IServices;
 using FurniMove.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MimeKit;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -17,12 +17,15 @@ namespace FurniMove.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IEmailService _emailService;
 
-        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager)
+        public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
+            SignInManager<AppUser> signInManager, IEmailService emailService)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
+            _emailService = emailService;
         }
 
         [HttpPost("login")]
@@ -122,5 +125,101 @@ namespace FurniMove.Controllers
             return BadRequest("Incorrect number");
         }
 
+        [HttpPost("sendEmailConfirmation")]
+        public async Task<IActionResult> SendEmailConfirmation(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return NotFound();
+            if (user.EmailConfirmed == true) return BadRequest("Email already confirmed");
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = Url.Action("confirmEmail", "Account", new {token, email = user.Email}, Request.Scheme);
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("FurniMove", "furnimoveproject@gmail.com")); // Change this to your name and email
+            message.To.Add(new MailboxAddress("", user.Email)); // Empty name for recipient
+            message.Subject = "Email Confirmation";
+
+            var bodyHtml = @"
+                <!DOCTYPE html>
+                <html lang=""en"">
+                <head>
+                <meta charset=""UTF-8"">
+                <meta http-equiv=""x-ua-compatible"" content=""ie=edge"">
+                <title>Email Confirmation</title>
+                <meta name=""viewport"" content=""width=device-width, initial-scale=1"">
+                <style>
+                /* Styles for the button */
+                .button-container {
+                    text-align: center;
+                }
+
+                .button-container button {
+                    background-color: red;
+                    color: white;
+                    padding: 20px 40px;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 20px;
+                    cursor: pointer;
+                    text-decoration: none;
+                }
+
+                .button-container button a {
+                    text-decoration: none;
+                    color: white;
+                }
+                </style>
+                </head>
+                <body style=""background-color: #e9ecef; font-family: Arial, sans-serif;"">
+
+                <!-- start body -->
+                <table border=""0"" cellpadding=""0"" cellspacing=""0"" width=""100%"">
+                    <!-- start explanation text -->
+                    <tr>
+                        <td align=""center"" bgcolor=""#ffffff"" style=""padding: 30px 20px;"">
+                            <p style=""font-size: 18px; margin-bottom: 20px;"">Please confirm your email address to activate your account. If you didn't request this email, you can safely ignore it.</p>
+                        </td>
+                    </tr>
+                    <!-- end explanation text -->
+                    <!-- start button -->
+                    <tr>
+                        <td align=""center"" bgcolor=""#ffffff"" style=""padding-bottom: 30px;"">
+                            <div class=""button-container"">
+                                <button>
+                                    <a href=""" + confirmationLink + @""">Confirm Email Address</a>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- end button -->
+                </table>
+                <!-- end body -->
+
+                </body>
+                </html>
+                ";
+
+
+            var bodyBuilder = new BodyBuilder();
+            bodyBuilder.HtmlBody = bodyHtml;
+
+
+            message.Body = bodyBuilder.ToMessageBody();
+
+            _emailService.Send(message);
+
+            return Ok();
+        }
+
+
+        [HttpGet("confirmEmail")]
+        public async Task<IActionResult> ConfirmEmail(string token,string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if(user == null) return NotFound();
+            await _userManager.ConfirmEmailAsync(user, token);
+            return Ok("Email Confirmed!");
+        }
+            
     }
 }
