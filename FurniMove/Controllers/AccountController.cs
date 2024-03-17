@@ -33,13 +33,13 @@ namespace FurniMove.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == loginDto.Username.ToLower());
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email.ToLower());
 
-            if (user == null) return Unauthorized("Invalid username!");
+            if (user == null) return Unauthorized("Email not found!");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
-            if (!result.Succeeded) return Unauthorized("Username not found and/or password incorrect");
+            if (!result.Succeeded) return Unauthorized("Password incorrect!");
 
             return Ok(
                 new NewUserDTO
@@ -67,6 +67,11 @@ namespace FurniMove.Controllers
 
                 if (await _userManager.FindByEmailAsync(registerDTO.Email) != null) 
                     return BadRequest("Email already in use!");
+
+                if(registerDTO.Role != "Admin" &&
+                    registerDTO.Role != "Customer" &&
+                    registerDTO.Role != "ServiceProvider") 
+                    return BadRequest("Role Doesn't exist!");
 
                 var appUser = new AppUser
                 {

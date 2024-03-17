@@ -39,6 +39,7 @@ builder.Services.AddSingleton(emailConfiguration);
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ";
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = false;
     options.Password.RequireNonAlphanumeric = false;
