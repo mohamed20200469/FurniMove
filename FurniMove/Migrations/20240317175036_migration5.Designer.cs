@@ -4,6 +4,7 @@ using FurniMove.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FurniMove.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240317175036_migration5")]
+    partial class migration5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,7 +50,7 @@ namespace FurniMove.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int>("MoveCounter")
+                    b.Property<int?>("MoveCounter")
                         .HasColumnType("int");
 
                     b.Property<string>("NormalizedEmail")
@@ -286,19 +289,19 @@ namespace FurniMove.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "1",
+                            Id = "409b5d3f-a440-4e62-9049-c7382a06d7d8",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "2",
+                            Id = "3eb9518b-7a4c-4bc3-9cf3-df9bc09bbc53",
                             Name = "Customer",
                             NormalizedName = "CUSTOMER"
                         },
                         new
                         {
-                            Id = "3",
+                            Id = "34980463-6c7b-42e7-b8bf-846a0b1a0831",
                             Name = "ServiceProvider",
                             NormalizedName = "SERVICEPROVIDER"
                         });

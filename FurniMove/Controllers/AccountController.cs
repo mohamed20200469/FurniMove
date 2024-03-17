@@ -49,6 +49,7 @@ namespace FurniMove.Controllers
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
+                    MoveCounter = user.MoveCounter,
                     Token = _tokenService.CreateToken(user),
                     Role = user.Role
                 }
@@ -64,10 +65,14 @@ namespace FurniMove.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                if (await _userManager.FindByEmailAsync(registerDTO.Email) != null) 
+                    return BadRequest("Email already in use!");
+
                 var appUser = new AppUser
                 {
                     UserName = registerDTO.Username,
                     Email = registerDTO.Email,
+                    PhoneNumber = registerDTO.PhoneNumber,
                     Role = registerDTO.Role
                 };
 
@@ -115,8 +120,8 @@ namespace FurniMove.Controllers
             return Ok();
         }
 
-        [HttpPatch("addPhoneNumber")]
-        public async Task<IActionResult> AddPhoneNumber(string userId, string phoneNumber)
+        [HttpPatch("setPhoneNumber")]
+        public async Task<IActionResult> SetPhoneNumber(string userId, string phoneNumber)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
@@ -139,8 +144,8 @@ namespace FurniMove.Controllers
             var confirmationLink = Url.Action("confirmEmail", "Account", new {token, email = user.Email}, Request.Scheme);
 
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress("FurniMove", "furnimoveproject@gmail.com")); // Change this to your name and email
-            message.To.Add(new MailboxAddress("", user.Email)); // Empty name for recipient
+            message.From.Add(new MailboxAddress("FurniMove", "furnimoveproject@gmail.com"));
+            message.To.Add(new MailboxAddress("", user.Email));
             message.Subject = "Email Confirmation";
 
             var bodyHtml = @"
