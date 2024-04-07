@@ -36,6 +36,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 var emailConfiguration = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 
 builder.Services.AddSingleton(emailConfiguration);
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {

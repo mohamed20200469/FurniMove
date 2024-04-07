@@ -12,5 +12,8 @@ namespace FurniMove.Models
         public MoveRequest? moveRequest { get; set; }
         [ForeignKey("moveRequest")]
         public int? moveRequestId { get; set; }
+        public AppUser? serviceProvider { get; set; }
+        [ForeignKey("serviceProvider")]
+        public string? serviceProviderId { get; set; }
     }
 }

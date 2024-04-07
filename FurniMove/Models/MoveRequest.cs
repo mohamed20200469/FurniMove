@@ -7,6 +7,12 @@ namespace FurniMove.Models
     {
         [Key]
         public int Id { get; set; }
+        public AppUser? customer { get; set; }
+        [ForeignKey("customer")]
+        public string? customerId { get; set; }
+        public AppUser? serviceProvider { get; set; }
+        [ForeignKey("serviceProvider")]
+        public string? serviceProviderId { get; set; }
         [Required]
         public required string status { get; set; }
         public DateTime? startTime { get; set; }
