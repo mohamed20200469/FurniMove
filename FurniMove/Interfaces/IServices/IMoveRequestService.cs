@@ -4,8 +4,8 @@ namespace FurniMove.Interfaces.IServices
 {
     public interface IMoveRequestService
     {
-        public bool CreateMoveRequest(MoveRequest moveRequest);
-        public ICollection<MoveRequest> GetMoveRequests();
-        public MoveRequest? GetMoveRequestById(int id);
+        public Task<bool> CreateMoveRequest(MoveRequest moveRequest);
+        public Task<ICollection<MoveRequest>> GetMoveRequests();
+        public Task<MoveRequest?> GetMoveRequestById(int id);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FurniMove.Data;
 using FurniMove.Interfaces.IRepositories;
 using FurniMove.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FurniMove.Repositories
 {
@@ -12,43 +13,43 @@ namespace FurniMove.Repositories
             _db = db;
         }
 
-        public bool CreateMoveRequest(MoveRequest moveRequest)
+        public async Task<bool> CreateMoveRequestAsync(MoveRequest moveRequest)
         {
-            _db.MoveRequests.Add(moveRequest);
-            return Save();
+            await _db.MoveRequests.AddAsync(moveRequest);
+            return await SaveAsync();
         }
 
-        public bool DeleteMoveRequestById(int id)
+        public async Task<bool> DeleteMoveRequestByIdAsync(int id)
         {
-            var moveRequest = _db.MoveRequests.FirstOrDefault(x => x.Id == id);
+            var moveRequest = await _db.MoveRequests.FindAsync(id);
             if (moveRequest != null)
             {
                 _db.MoveRequests.Remove(moveRequest);
             }
-            return Save();
+            return await SaveAsync();
         }
 
-        public MoveRequest? GetMoveRequestById(int id)
+        public async Task<MoveRequest?> GetMoveRequestByIdAsync(int id)
         {
-            var moveRequest = _db.MoveRequests.FirstOrDefault(x => x.Id == id);
+            var moveRequest = await _db.MoveRequests.FindAsync(id);
             return moveRequest;
         }
 
-        public ICollection<MoveRequest> GetMoveRequests()
+        public async Task<ICollection<MoveRequest>> GetAllMoveRequestsAsync()
         {
-            return _db.MoveRequests.ToList();
+            return await _db.MoveRequests.ToListAsync();
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            var saved = _db.SaveChanges();
+            var saved = await _db.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateMoveRequest(MoveRequest moveRequest)
+        public async Task<bool> UpdateMoveRequestAsync(MoveRequest moveRequest)
         {
             _db.MoveRequests.Update(moveRequest);
-            return Save();
+            return await SaveAsync();
         }
     }
 }

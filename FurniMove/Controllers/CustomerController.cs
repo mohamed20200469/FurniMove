@@ -29,14 +29,14 @@ namespace FurniMove.Controllers
         }
 
         [HttpPost("CreateMoveRequest")]
-        public ActionResult<MoveRequest> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO)
+        public async Task<ActionResult<MoveRequest>> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO)
         {
             var moveRequest = _mapper.Map<MoveRequest>(moveRequestDTO);
             moveRequest.customerId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (moveRequest != null && moveRequest.numOfAppliances > 0)
             {
                 moveRequest.status = "Created";
-                _moveRequestService.CreateMoveRequest(moveRequest);
+                await _moveRequestService.CreateMoveRequest(moveRequest);
                 return Created(nameof(CreateMoveRequest), moveRequest);
             }
             return BadRequest();

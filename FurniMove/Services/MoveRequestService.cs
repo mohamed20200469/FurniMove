@@ -12,19 +12,19 @@ namespace FurniMove.Services
             _moveRequestRepo = moveRequestRepo;
         }
 
-        public bool CreateMoveRequest(MoveRequest moveRequest)
+        public async Task<bool> CreateMoveRequest(MoveRequest moveRequest)
         {
-            return _moveRequestRepo.CreateMoveRequest(moveRequest);
+            return await _moveRequestRepo.CreateMoveRequestAsync(moveRequest);
         }
 
-        public MoveRequest? GetMoveRequestById(int id)
+        public async Task<MoveRequest?> GetMoveRequestById(int id)
         {
-            return _moveRequestRepo.GetMoveRequestById(id);
+            return await _moveRequestRepo.GetMoveRequestByIdAsync(id);
         }
 
-        public ICollection<MoveRequest> GetMoveRequests()
+        public async Task<ICollection<MoveRequest>> GetMoveRequests()
         {
-            return _moveRequestRepo.GetMoveRequests();
+            return await _moveRequestRepo.GetAllMoveRequestsAsync();
         }
     }
 }
