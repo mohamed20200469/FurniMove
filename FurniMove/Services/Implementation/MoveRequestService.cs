@@ -1,8 +1,8 @@
-﻿using FurniMove.Interfaces.IRepositories;
-using FurniMove.Interfaces.IServices;
-using FurniMove.Models;
+﻿using FurniMove.Models;
+using FurniMove.Repositories.Abstract;
+using FurniMove.Services.Abstract;
 
-namespace FurniMove.Services
+namespace FurniMove.Services.Implementation
 {
     public class MoveRequestService : IMoveRequestService
     {

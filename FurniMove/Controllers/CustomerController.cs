@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using FurniMove.DTOs;
-using FurniMove.Interfaces.IServices;
 using FurniMove.Models;
 using FurniMove.Services;
+using FurniMove.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

@@ -1,8 +1,8 @@
 ﻿using FurniMove.Data;
-using FurniMove.Interfaces.IRepositories;
 using FurniMove.Models;
+using FurniMove.Repositories.Abstract;
 
-namespace FurniMove.Repositories
+namespace FurniMove.Repositories.Implementation
 {
     public class MoveOfferRepo : IMoveOfferRepo
     {

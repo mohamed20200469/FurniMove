@@ -1,8 +1,8 @@
 ﻿using FurniMove.Data;
-using FurniMove.Interfaces.IRepositories;
 using FurniMove.Models;
+using FurniMove.Repositories.Abstract;
 
-namespace FurniMove.Repositories
+namespace FurniMove.Repositories.Implementation
 {
     public class TruckRepo : ITruckRepo
     {
@@ -34,7 +34,7 @@ namespace FurniMove.Repositories
 
         public Truck? getTruckById(int truckId)
         {
-            var truck = _db.Trucks.FirstOrDefault(x =>x.Id == truckId);
+            var truck = _db.Trucks.FirstOrDefault(x => x.Id == truckId);
             return truck;
         }
 

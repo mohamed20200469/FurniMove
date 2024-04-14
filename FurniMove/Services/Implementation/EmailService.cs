@@ -1,15 +1,15 @@
-﻿using FurniMove.Interfaces.IServices;
-using FurniMove.Models;
+﻿using FurniMove.Models;
+using FurniMove.Services.Abstract;
 using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace FurniMove.Services
+namespace FurniMove.Services.Implementation
 {
     public class EmailService : IEmailService
     {
         private readonly EmailConfiguration _emailConfiguration;
 
-        public EmailService(EmailConfiguration emailConfiguration) 
+        public EmailService(EmailConfiguration emailConfiguration)
         {
             _emailConfiguration = emailConfiguration;
         }

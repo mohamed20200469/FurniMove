@@ -1,11 +1,14 @@
 ﻿using FurniMove.DTOs;
-using FurniMove.Interfaces.IServices;
 using FurniMove.Models;
+using FurniMove.Services.Abstract;
+using FurniMove.Services.Implementation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using System.Net;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace FurniMove.Controllers
@@ -18,14 +21,21 @@ namespace FurniMove.Controllers
         private readonly ITokenService _tokenService;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
+        private readonly IFileService _fileService;
+        private readonly IHttpContextAccessor _http;
+        private readonly IWebHostEnvironment _env;
 
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
-            SignInManager<AppUser> signInManager, IEmailService emailService)
+            SignInManager<AppUser> signInManager, IEmailService emailService, IFileService fileService,
+            IHttpContextAccessor httpContextAccessor, IWebHostEnvironment env)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
             _emailService = emailService;
+            _fileService = fileService;
+            _http = httpContextAccessor;
+            _env = env;
         }
 
         [HttpPost("login")]
@@ -234,6 +244,45 @@ namespace FurniMove.Controllers
             await _userManager.ConfirmEmailAsync(user, token);
             return Ok("Email Confirmed!");
         }
-            
+
+        [Authorize(Roles = "Admin, Customer, ServiceProvider")]
+        [HttpPost("addImg")]
+        public async Task<IActionResult> AddImg(IFormFile img)
+        {
+            var fileResult = _fileService.SaveImage(img);
+            var id = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.FindByIdAsync(id);
+            if(user == null) return NotFound();
+            if(fileResult.Item1 == 1)
+            {
+                user.UserImg = fileResult.Item2;
+                await _userManager.UpdateAsync(user);
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [Authorize(Roles ="Admin")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+            return Ok(user);
+        }
+
+        [Authorize]
+        [HttpGet("GetUserImg")]
+        public async Task<IActionResult> GetImageUrl()
+        {
+            var id = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null || user.UserImg == null) return NotFound();
+            // Construct the URL to the image file
+            string imageUrl = $"{Request.Scheme}://{Request.Host}/Uploads/{user.UserImg}";
+
+            // Return the URL in the response
+            return Ok(new { imageUrl });
+        }
     }
 }

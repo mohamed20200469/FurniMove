@@ -1,8 +1,8 @@
 ﻿using FurniMove.Data;
-using FurniMove.Interfaces.IRepositories;
 using FurniMove.Models;
+using FurniMove.Repositories.Abstract;
 
-namespace FurniMove.Repositories
+namespace FurniMove.Repositories.Implementation
 {
     public class ApplianceRepo : IApplianceRepo
     {
@@ -20,7 +20,7 @@ namespace FurniMove.Repositories
 
         public bool DeleteAppliancebyId(int applianceId)
         {
-            var appliance = _db.Appliances.FirstOrDefault(p  => p.Id == applianceId);
+            var appliance = _db.Appliances.FirstOrDefault(p => p.Id == applianceId);
             if (appliance == null)
             {
                 return false;

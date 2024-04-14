@@ -1,11 +1,11 @@
-﻿using FurniMove.Interfaces.IServices;
-using FurniMove.Models;
+﻿using FurniMove.Models;
+using FurniMove.Services.Abstract;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace FurniMove.Services
+namespace FurniMove.Services.Implementation
 {
     public class TokenService : ITokenService
     {

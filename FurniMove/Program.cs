@@ -1,10 +1,10 @@
 using AutoMapper;
 using FurniMove.Data;
-using FurniMove.Interfaces.IRepositories;
-using FurniMove.Interfaces.IServices;
 using FurniMove.Models;
-using FurniMove.Repositories;
-using FurniMove.Services;
+using FurniMove.Repositories.Abstract;
+using FurniMove.Repositories.Implementation;
+using FurniMove.Services.Abstract;
+using FurniMove.Services.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +32,7 @@ builder.Services.AddScoped<ITruckRepo, TruckRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 var emailConfiguration = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 
@@ -113,7 +114,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-
+app.UseStaticFiles();
 app.UseAuthentication();
 
 app.UseAuthorization();

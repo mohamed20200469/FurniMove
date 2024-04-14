@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using FurniMove.DTOs;
-using FurniMove.Interfaces.IServices;
 using FurniMove.Models;
+using FurniMove.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -49,13 +49,13 @@ namespace FurniMove.Controllers
         }
 
         [HttpPost("CreateMoveRequest")]
-        public ActionResult<MoveRequest> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO)
+        public async Task<ActionResult<MoveRequest>> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO)
         {
             var moveRequest = _mapper.Map<MoveRequest>(moveRequestDTO);
             if (moveRequest != null && moveRequest.numOfAppliances > 0)
             {
                 moveRequest.status = "Created";
-                _moveRequestService.CreateMoveRequest(moveRequest);
+                await _moveRequestService.CreateMoveRequest(moveRequest);
                 return CreatedAtAction("GetMoveRequestById", moveRequest);
             }
             return BadRequest();

@@ -1,9 +1,9 @@
 ﻿using FurniMove.Data;
-using FurniMove.Interfaces.IRepositories;
 using FurniMove.Models;
+using FurniMove.Repositories.Abstract;
 using Microsoft.EntityFrameworkCore;
 
-namespace FurniMove.Repositories
+namespace FurniMove.Repositories.Implementation
 {
     public class MoveRequestRepo : IMoveRequestRepo
     {

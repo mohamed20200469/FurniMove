@@ -1,6 +1,6 @@
 ﻿using FurniMove.Models;
 
-namespace FurniMove.Interfaces.IServices
+namespace FurniMove.Services.Abstract
 {
     public interface ITokenService
     {

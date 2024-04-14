@@ -1,7 +1,7 @@
 ﻿using FurniMove.Models;
 using MimeKit;
 
-namespace FurniMove.Interfaces.IServices
+namespace FurniMove.Services.Abstract
 {
     public interface IEmailService
     {

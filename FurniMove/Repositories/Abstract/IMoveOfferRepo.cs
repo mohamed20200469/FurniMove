@@ -1,6 +1,6 @@
 ﻿using FurniMove.Models;
 
-namespace FurniMove.Interfaces.IRepositories
+namespace FurniMove.Repositories.Abstract
 {
     public interface IMoveOfferRepo
     {
