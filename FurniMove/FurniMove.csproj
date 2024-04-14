@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\Uploads\f7c2880e-1a91-429d-bba8-71364515a893.png" />
+    <Folder Include="wwwroot\Uploads\" />
   </ItemGroup>
 
 </Project>

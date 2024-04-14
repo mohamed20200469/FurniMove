@@ -14,7 +14,7 @@ namespace FurniMove.Services.Implementation
         {
             try
             {
-                var contentPath = this.environment.ContentRootPath;
+                var contentPath = this.environment.WebRootPath;
                 // path = "c://projects/productminiapi/uploads" ,not exactly something like that
                 var path = Path.Combine(contentPath, "Uploads");
                 if (!Directory.Exists(path))
@@ -47,7 +47,7 @@ namespace FurniMove.Services.Implementation
 
         public async Task DeleteImage(string imageFileName)
         {
-            var contentPath = this.environment.ContentRootPath;
+            var contentPath = this.environment.WebRootPath;
             var path = Path.Combine(contentPath, $"Uploads", imageFileName);
             if (File.Exists(path))
                 File.Delete(path);
