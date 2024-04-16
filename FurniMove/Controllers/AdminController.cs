@@ -5,6 +5,7 @@ using FurniMove.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FurniMove.Controllers
@@ -16,13 +17,15 @@ namespace FurniMove.Controllers
     {
         private readonly IMoveRequestService _moveRequestService;
         private readonly IMoveOfferService _moveOfferService;
+        private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
-        public AdminController(IMoveRequestService moveRequestService, IMapper mapper, IMoveOfferService moveOfferService)
+        public AdminController(IMoveRequestService moveRequestService, IMapper mapper,
+            IMoveOfferService moveOfferService, UserManager<AppUser> userManager)
         {
             _moveRequestService = moveRequestService;
             _mapper = mapper;
             _moveOfferService = moveOfferService;
-
+            _userManager = userManager;
         }
 
         [AllowAnonymous]
@@ -71,6 +74,14 @@ namespace FurniMove.Controllers
                 return CreatedAtAction("GetAllMoveOffers", moveOffer);
             }
             return NotFound();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+            return Ok(user);
         }
     }   
 }

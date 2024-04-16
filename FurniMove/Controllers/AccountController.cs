@@ -59,6 +59,7 @@ namespace FurniMove.Controllers
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
+                    UserImgURL = user.UserImgURL,
                     MoveCounter = user.MoveCounter,
                     Token = _tokenService.CreateToken(user),
                     Role = user.Role
@@ -246,43 +247,30 @@ namespace FurniMove.Controllers
         }
 
         [Authorize(Roles = "Admin, Customer, ServiceProvider")]
-        [HttpPost("addImg")]
-        public async Task<IActionResult> AddImg(IFormFile img)
+        [HttpPost("addUserImg")]
+        public async Task<IActionResult> AddUserImg(IFormFile img)
         {
-            var fileResult = _fileService.SaveImage(img);
+            var fileResult = _fileService.SaveImage(img, "ProfilePictures");
             var id = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(id);
             if(user == null) return NotFound();
             if(fileResult.Item1 == 1)
             {
-                user.UserImg = fileResult.Item2;
+                user.UserImgURL = fileResult.Item2;
                 await _userManager.UpdateAsync(user);
                 return Ok();
             }
             return BadRequest();
         }
 
-        [Authorize(Roles ="Admin")]
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
-            return Ok(user);
-        }
-
         [Authorize]
-        [HttpGet("GetUserImg")]
+        [HttpGet("GetCurrentUser")]
         public async Task<IActionResult> GetImageUrl()
         {
             var id = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null || user.UserImg == null) return NotFound();
-            // Construct the URL to the image file
-            string imageUrl = $"{Request.Scheme}://{Request.Host}/Uploads/{user.UserImg}";
-
-            // Return the URL in the response
-            return Ok(new { imageUrl });
+            if (user == null || user.UserImgURL == null) return NotFound();
+            return Ok(user);
         }
     }
 }

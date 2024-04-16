@@ -10,5 +10,6 @@
         public string PhoneNumber { get; set; }
         public bool EmailConfirmed { get; set; }
         public int MoveCounter { get; set; }
+        public string? UserImgURL { get; set; } 
     }
 }

@@ -8,7 +8,7 @@ namespace FurniMove.Models
     {
         public string? Role { get; set; }
         public int MoveCounter { get; set; } = 0;
-        public string? UserImg { get; set; }
+        public string? UserImgURL { get; set; }
         [NotMapped]
         public IFormFile? ImgFile { get; set; }
     }
