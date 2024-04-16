@@ -4,17 +4,17 @@ namespace FurniMove.Services.Implementation
 {
     public class FileService : IFileService
     {
-        private IWebHostEnvironment environment;
+        private readonly IWebHostEnvironment _env;
         public FileService(IWebHostEnvironment env)
         {
-            this.environment = env;
+            _env = env;
         }
 
         public Tuple<int, string> SaveImage(IFormFile imageFile, string folder)
         {
             try
             {
-                var contentPath = this.environment.WebRootPath;
+                var contentPath = _env.WebRootPath;
                 // path = "c://projects/productminiapi/uploads" ,not exactly something like that
                 var path = Path.Combine(contentPath, "Uploads\\", folder);
                 if (!Directory.Exists(path))
@@ -37,7 +37,7 @@ namespace FurniMove.Services.Implementation
                 var stream = new FileStream(fileWithPath, FileMode.Create);
                 imageFile.CopyTo(stream);
                 stream.Close();
-                return new Tuple<int, string>(1, fileWithPath);
+                return new Tuple<int, string>(1, newFileName);
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace FurniMove.Services.Implementation
 
         public async Task DeleteImage(string imageFileName)
         {
-            var contentPath = this.environment.WebRootPath;
+            var contentPath = _env.WebRootPath;
             var path = Path.Combine(contentPath, $"Uploads", imageFileName);
             if (File.Exists(path))
                 File.Delete(path);

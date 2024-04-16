@@ -23,11 +23,10 @@ namespace FurniMove.Controllers
         private readonly IEmailService _emailService;
         private readonly IFileService _fileService;
         private readonly IHttpContextAccessor _http;
-        private readonly IWebHostEnvironment _env;
 
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
             SignInManager<AppUser> signInManager, IEmailService emailService, IFileService fileService,
-            IHttpContextAccessor httpContextAccessor, IWebHostEnvironment env)
+            IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _tokenService = tokenService;
@@ -35,7 +34,6 @@ namespace FurniMove.Controllers
             _emailService = emailService;
             _fileService = fileService;
             _http = httpContextAccessor;
-            _env = env;
         }
 
         [HttpPost("login")]
@@ -251,12 +249,13 @@ namespace FurniMove.Controllers
         public async Task<IActionResult> AddUserImg(IFormFile img)
         {
             var fileResult = _fileService.SaveImage(img, "ProfilePictures");
-            var id = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(id);
             if(user == null) return NotFound();
             if(fileResult.Item1 == 1)
             {
-                user.UserImgURL = fileResult.Item2;
+
+                user.UserImgURL = $"{Request.Scheme}://{Request.Host}/Uploads/ProfilePictures/{fileResult.Item2}";
                 await _userManager.UpdateAsync(user);
                 return Ok();
             }
@@ -265,9 +264,9 @@ namespace FurniMove.Controllers
 
         [Authorize]
         [HttpGet("GetCurrentUser")]
-        public async Task<IActionResult> GetImageUrl()
+        public async Task<IActionResult> GetUser()
         {
-            var id = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(id);
             if (user == null || user.UserImgURL == null) return NotFound();
             return Ok(user);
