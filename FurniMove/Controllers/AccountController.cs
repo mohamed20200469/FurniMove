@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
+using System;
 using System.Net;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
@@ -254,7 +255,11 @@ namespace FurniMove.Controllers
             if(user == null) return NotFound();
             if(fileResult.Item1 == 1)
             {
-
+                if (user.UserImgURL != null)
+                {
+                    string lastPart = new Uri(user.UserImgURL).AbsolutePath.TrimEnd('/').Split('/').Last();
+                    await _fileService.DeleteImage(lastPart, "ProfilePictures");
+                }
                 user.UserImgURL = $"{Request.Scheme}://{Request.Host}/Uploads/ProfilePictures/{fileResult.Item2}";
                 await _userManager.UpdateAsync(user);
                 return Ok();

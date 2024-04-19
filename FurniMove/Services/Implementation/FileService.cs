@@ -45,12 +45,16 @@ namespace FurniMove.Services.Implementation
             }
         }
 
-        public async Task DeleteImage(string imageFileName)
+        public async Task<bool> DeleteImage(string imageFileName, string folder)
         {
             var contentPath = _env.WebRootPath;
-            var path = Path.Combine(contentPath, $"Uploads", imageFileName);
+            var path = Path.Combine(contentPath, $"Uploads", folder, imageFileName);
             if (File.Exists(path))
+            {
                 File.Delete(path);
+                return true;
+            }
+            return false;
         }
     }
 }

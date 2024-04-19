@@ -18,14 +18,17 @@ namespace FurniMove.Controllers
         private readonly IMoveRequestService _moveRequestService;
         private readonly IMoveOfferService _moveOfferService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IFileService _fileService;
         private readonly IMapper _mapper;
         public AdminController(IMoveRequestService moveRequestService, IMapper mapper,
-            IMoveOfferService moveOfferService, UserManager<AppUser> userManager)
+            IMoveOfferService moveOfferService, UserManager<AppUser> userManager,
+            IFileService fileService)
         {
             _moveRequestService = moveRequestService;
             _mapper = mapper;
             _moveOfferService = moveOfferService;
             _userManager = userManager;
+            _fileService = fileService;
         }
 
         [AllowAnonymous]
@@ -82,6 +85,14 @@ namespace FurniMove.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
             return Ok(user);
+        }
+
+        [HttpDelete("DeleteImg")]
+        public async Task<IActionResult> DeleteImg(string id, string folder)
+        {
+            var res = await _fileService.DeleteImage(id, folder);
+            if (res) return Ok();
+            return NotFound();
         }
     }   
 }
