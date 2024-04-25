@@ -1,6 +1,8 @@
 ﻿using FurniMove.Data;
 using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.EntityFrameworkCore;
 
 namespace FurniMove.Repositories.Implementation
 {
@@ -11,46 +13,59 @@ namespace FurniMove.Repositories.Implementation
         {
             _db = db;
         }
-        public bool CreateMoveOffer(MoveOffer moveOffer)
+
+        public async Task<bool> CreateMoveOffer(MoveOffer moveOffer)
         {
-            var moveRequest = _db.MoveRequests.FirstOrDefault(x => x.Id == moveOffer.moveRequestId);
+            var moveRequest = await _db.MoveRequests.FirstOrDefaultAsync(x => x.Id == moveOffer.moveRequestId);
             if (moveRequest != null)
             {
-                _db.MoveOffers.Add(moveOffer);
+                await _db.MoveOffers.AddAsync(moveOffer);
             }
-            return Save();
+            return await Save();
         }
 
-        public bool DeleteMoveOfferById(int id)
+        public async Task<bool> DeleteMoveOfferById(int id)
         {
-            var moveOffer = _db.MoveOffers.FirstOrDefault(x => x.Id == id);
+            var moveOffer = await _db.MoveOffers.FirstOrDefaultAsync(x => x.Id == id);
             if (moveOffer != null)
             {
                 _db.MoveOffers.Remove(moveOffer);
             }
-            return Save();
+            return await Save();
         }
 
-        public ICollection<MoveOffer> GetAllMoveOffers()
+        public async Task<ICollection<MoveOffer>> GetAllMoveOffers()
         {
-            return _db.MoveOffers.ToList();
+            return await _db.MoveOffers.ToListAsync();
         }
 
-        public MoveOffer? GetMoveOfferById(int id)
+        public async Task<ICollection<MoveOffer>?> GetAllMoveOffersByRequestID(int id)
         {
-            return _db.MoveOffers.FirstOrDefault(o => o.Id == id);
+            var request = await _db.MoveRequests.FirstOrDefaultAsync(o => o.Id == id);
+            if (request != null)
+            {
+                var offers = await _db.MoveOffers.Where(x => x.moveRequestId == id).ToListAsync();
+                return offers;
+            }
+            return null;
         }
 
-        public bool Save()
+        public async Task<MoveOffer?> GetMoveOfferById(int id)
         {
-            var saved = _db.SaveChanges();
+            return await _db.MoveOffers.FirstOrDefaultAsync(o => o.Id == id);
+        }
+
+        public async Task<bool> Save()
+        {
+            var saved = await _db.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateMoveOffer(MoveOffer moveOffer)
+        public async Task<bool> UpdateMoveOffer(MoveOffer moveOffer)
         {
-            _db.MoveOffers.Update(moveOffer);
-            return Save();
+            await _db.MoveOffers.AddAsync(moveOffer);
+            return await Save();
         }
+
     }
 }

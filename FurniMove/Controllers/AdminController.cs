@@ -33,53 +33,28 @@ namespace FurniMove.Controllers
 
         [AllowAnonymous]
         [HttpGet("GetAllMoveRequests")]
-        public ActionResult<ICollection<MoveRequest>> GetAllMoveRequests()
+        public async Task<IActionResult> GetAllMoveRequestsAsync()
         {
-            var moveRequests = _moveRequestService.GetMoveRequests();
+            var moveRequests = await _moveRequestService.GetMoveRequests();
 
             return Ok(moveRequests);
         }
 
         [HttpGet("GetMoveRequestById")]
-        public ActionResult<MoveRequest> GetMoveRequestById(int id)
+        public async Task<IActionResult> GetMoveRequestById(int id)
         {
-            var moveRequest = _moveRequestService.GetMoveRequestById(id);
+            var moveRequest = await _moveRequestService.GetMoveRequestById(id);
             if (moveRequest == null) return NotFound();
             return Ok(moveRequest);
         }
 
         [HttpGet("GetAllMoveOffers")]
-        public ActionResult<ICollection<MoveOffer>> GetAllMoveOffers()
+        public async Task<IActionResult> GetAllMoveOffersAsync()
         {
-            return Ok(_moveOfferService.GetAllMoveOffers());
+            return Ok(await _moveOfferService.GetAllMoveOffers());
         }
 
-        [HttpPost("CreateMoveRequest")]
-        public async Task<ActionResult<MoveRequest>> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO)
-        {
-            var moveRequest = _mapper.Map<MoveRequest>(moveRequestDTO);
-            if (moveRequest != null && moveRequest.numOfAppliances > 0)
-            {
-                moveRequest.status = "Created";
-                await _moveRequestService.CreateMoveRequest(moveRequest);
-                return CreatedAtAction("GetMoveRequestById", moveRequest);
-            }
-            return BadRequest();
-        }
-
-        [HttpPost("CreateMoveOffer")]
-        public ActionResult<MoveOffer> CreateMoveOffer(MoveOfferWriteDTO moveOfferDTO)
-        {
-            var moveOffer = _mapper.Map<MoveOffer>(moveOfferDTO);
-            bool check = _moveOfferService.CreateMoveOffer(moveOffer);
-            if (check)
-            {
-                return CreatedAtAction("GetAllMoveOffers", moveOffer);
-            }
-            return NotFound();
-        }
-
-        [HttpGet("{id}")]
+        [HttpGet("User/{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -88,9 +63,9 @@ namespace FurniMove.Controllers
         }
 
         [HttpDelete("DeleteImg")]
-        public async Task<IActionResult> DeleteImg(string id, string folder)
+        public async Task<IActionResult> DeleteImg(string imageFileName, string folder)
         {
-            var res = await _fileService.DeleteImage(id, folder);
+            var res = await _fileService.DeleteImage(imageFileName, folder);
             if (res) return Ok();
             return NotFound();
         }

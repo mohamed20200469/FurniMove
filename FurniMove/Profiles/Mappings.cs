@@ -10,6 +10,7 @@ namespace FurniMove.Profiles
         {
             CreateMap<MoveRequestWriteDTO, MoveRequest>();
             CreateMap<MoveOfferWriteDTO, MoveOffer>();
+            CreateMap<AppUser, UserDTO>();
         }
     }
 }

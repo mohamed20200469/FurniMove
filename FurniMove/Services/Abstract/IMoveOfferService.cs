@@ -4,7 +4,9 @@ namespace FurniMove.Services.Abstract
 {
     public interface IMoveOfferService
     {
-        public bool CreateMoveOffer(MoveOffer moveOffer);
-        public ICollection<MoveOffer> GetAllMoveOffers();
+        public Task<bool> CreateMoveOffer(MoveOffer moveOffer);
+        public Task<ICollection<MoveOffer>> GetAllMoveOffers();
+        public Task<ICollection<MoveOffer>?> GetAllMoveOffersByRequestId(int id);
+        public Task<MoveOffer?> GetMoveOfferById(int id);
     }
 }

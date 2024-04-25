@@ -11,14 +11,24 @@ namespace FurniMove.Services.Implementation
         {
             _moveOfferRepo = moveOfferRepo;
         }
-        public bool CreateMoveOffer(MoveOffer moveOffer)
+        public async Task<bool> CreateMoveOffer(MoveOffer moveOffer)
         {
-            return _moveOfferRepo.CreateMoveOffer(moveOffer);
+            return await _moveOfferRepo.CreateMoveOffer(moveOffer);
         }
 
-        public ICollection<MoveOffer> GetAllMoveOffers()
+        public async Task<ICollection<MoveOffer>> GetAllMoveOffers()
         {
-            return _moveOfferRepo.GetAllMoveOffers();
+            return await _moveOfferRepo.GetAllMoveOffers();
+        }
+
+        public async Task<ICollection<MoveOffer>?> GetAllMoveOffersByRequestId(int id)
+        {
+            return await _moveOfferRepo.GetAllMoveOffersByRequestID(id);
+        }
+
+        public async Task<MoveOffer?> GetMoveOfferById(int id)
+        {
+            return await _moveOfferRepo.GetMoveOfferById(id);
         }
     }
 }

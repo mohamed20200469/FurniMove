@@ -1,7 +1,7 @@
-﻿using FurniMove.DTOs;
+﻿using AutoMapper;
+using FurniMove.DTOs;
 using FurniMove.Models;
 using FurniMove.Services.Abstract;
-using FurniMove.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,10 +24,11 @@ namespace FurniMove.Controllers
         private readonly IEmailService _emailService;
         private readonly IFileService _fileService;
         private readonly IHttpContextAccessor _http;
+        private readonly IMapper _mapper;
 
         public AccountController(UserManager<AppUser> userManager, ITokenService tokenService,
             SignInManager<AppUser> signInManager, IEmailService emailService, IFileService fileService,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _userManager = userManager;
             _tokenService = tokenService;
@@ -35,6 +36,7 @@ namespace FurniMove.Controllers
             _emailService = emailService;
             _fileService = fileService;
             _http = httpContextAccessor;
+            _mapper = mapper;
         }
 
         [HttpPost("login")]
@@ -50,25 +52,15 @@ namespace FurniMove.Controllers
 
             if (!result.Succeeded) return Unauthorized("Password incorrect!");
 
-            return Ok(
-                new NewUserDTO
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    EmailConfirmed = user.EmailConfirmed,
-                    PhoneNumber = user.PhoneNumber,
-                    UserImgURL = user.UserImgURL,
-                    MoveCounter = user.MoveCounter,
-                    Token = _tokenService.CreateToken(user),
-                    Role = user.Role
-                }
-            );
+            var userDTO = _mapper.Map<UserDTO>(user);
+            userDTO.Token = _tokenService.CreateToken(user);
+
+            return Ok(userDTO);
         }
 
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
+        public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
             try
             {
@@ -98,18 +90,9 @@ namespace FurniMove.Controllers
                     var roleResult = await _userManager.AddToRoleAsync(appUser, appUser.Role);
                     if (roleResult.Succeeded)
                     {
-                        return Ok(
-                            new NewUserDTO
-                            {
-                                Id = appUser.Id,
-                                UserName = appUser.UserName,
-                                Email = appUser.Email,
-                                EmailConfirmed = appUser.EmailConfirmed,
-                                PhoneNumber = appUser.PhoneNumber,
-                                Token = _tokenService.CreateToken(appUser),
-                                Role = appUser.Role
-                            }
-                        );
+                        var userDTO = _mapper.Map<UserDTO>(appUser);
+                        userDTO.Token = _tokenService.CreateToken(appUser);
+                        return Ok(userDTO);
                     }
                     else
                     {
@@ -273,7 +256,7 @@ namespace FurniMove.Controllers
         {
             var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null || user.UserImgURL == null) return NotFound();
+            if (user == null) return NotFound();
             return Ok(user);
         }
     }

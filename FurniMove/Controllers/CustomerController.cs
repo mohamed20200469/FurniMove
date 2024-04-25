@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using FurniMove.DTOs;
 using FurniMove.Models;
-using FurniMove.Services;
 using FurniMove.Services.Abstract;
+using FurniMove.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using static System.Net.WebRequestMethods;
 
 namespace FurniMove.Controllers
 {
@@ -19,13 +17,15 @@ namespace FurniMove.Controllers
         private readonly IMapper _mapper;
         private readonly IMoveRequestService _moveRequestService;
         private readonly IHttpContextAccessor _http;
+        private readonly IMoveOfferService _moveOfferService;
 
         public CustomerController(IMapper mapper, IMoveRequestService moveRequestService, 
-            IHttpContextAccessor httpContextAccessor) 
+            IHttpContextAccessor httpContextAccessor, IMoveOfferService moveOfferService) 
         {
             _mapper = mapper;
             _moveRequestService = moveRequestService;
             _http = httpContextAccessor;
+            _moveOfferService = moveOfferService;
         }
 
         [HttpPost("CreateMoveRequest")]
@@ -42,12 +42,12 @@ namespace FurniMove.Controllers
             return BadRequest();
         }
 
-        [HttpGet("GetCurrentUser")]
-        public ActionResult<string> GetCurrentUser()
+        [HttpGet("GetOffersByRequest")]
+        public async Task<IActionResult> GetOffersByRequestId(int id)
         {
-            var name = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.GivenName)?.Value;
-            var id = _http.HttpContext.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            return Ok(name + "\n" + id);
+            var offers = await _moveOfferService.GetAllMoveOffersByRequestId(id);
+            if (offers == null) return NotFound();
+            return Ok(offers);
         }
     }
 }
