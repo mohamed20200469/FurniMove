@@ -25,6 +25,12 @@ namespace FurniMove.Services.Implementation
             return await _moveRequestRepo.GetMoveRequestByIdAsync(id);
         }
 
+        public async Task<MoveRequest?> GetMoveRequestByUserId(string userId)
+        {
+            var request = await _moveRequestRepo.GetUserCreatedRequest(userId);
+            return request;
+        }
+
         public async Task<ICollection<MoveRequest>> GetMoveRequests()
         {
             return await _moveRequestRepo.GetAllMoveRequestsAsync();

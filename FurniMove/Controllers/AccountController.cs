@@ -46,7 +46,7 @@ namespace FurniMove.Controllers
                 return BadRequest(ModelState);
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email.ToLower());
 
-            if (user == null) return Unauthorized("Email not found!");
+            if (user == null) return NotFound("Email not found!");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
@@ -132,6 +132,7 @@ namespace FurniMove.Controllers
             return BadRequest("Incorrect number");
         }
 
+        [Authorize]
         [HttpPost("sendEmailConfirmation")]
         public async Task<IActionResult> SendEmailConfirmation(string email)
         {

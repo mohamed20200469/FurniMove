@@ -43,14 +43,16 @@ namespace FurniMove.Controllers
             return BadRequest();
         }
 
-        [HttpGet("GetOffersByRequest")]
-        public async Task<IActionResult> GetOffersByRequestId(int id)
+        [HttpGet("GetOffers")]
+        public async Task<IActionResult> GetOffers()
         {
-            var offers = await _moveOfferService.GetAllMoveOffersByRequestId(id);
-            if (offers == null) return NotFound();
-            return Ok(offers);
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var request = await _moveRequestService.GetMoveRequestByUserId(userId);
+            if (request != null)
+            {
+                return Ok(await _moveOfferService.GetAllMoveOffersByRequestId(request.Id));
+            }
+            return NotFound();
         }
-
-        //[HttpGet("GetOffers")]
     }
 }
