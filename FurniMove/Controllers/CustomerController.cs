@@ -35,9 +35,10 @@ namespace FurniMove.Controllers
             moveRequest.customerId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (moveRequest != null && moveRequest.numOfAppliances > 0)
             {
-                moveRequest.status = "Created";
-                await _moveRequestService.CreateMoveRequest(moveRequest);
-                return Created(nameof(CreateMoveRequest), moveRequest);
+
+                if(await _moveRequestService.CreateMoveRequest(moveRequest))
+                    return Created(nameof(CreateMoveRequest), moveRequest);
+                return BadRequest("User already has an ongoing move request");
             }
             return BadRequest();
         }
@@ -49,5 +50,7 @@ namespace FurniMove.Controllers
             if (offers == null) return NotFound();
             return Ok(offers);
         }
+
+        //[HttpGet("GetOffers")]
     }
 }

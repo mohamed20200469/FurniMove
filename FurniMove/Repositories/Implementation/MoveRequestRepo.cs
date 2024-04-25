@@ -51,5 +51,12 @@ namespace FurniMove.Repositories.Implementation
             _db.MoveRequests.Update(moveRequest);
             return await SaveAsync();
         }
+
+        public async Task<MoveRequest?> GetUserCreatedRequest(string userId)
+        {
+            var request = await _db.MoveRequests.FirstOrDefaultAsync(
+                x => x.customerId == userId && x.status != "Completed");
+            return request;
+        }
     }
 }

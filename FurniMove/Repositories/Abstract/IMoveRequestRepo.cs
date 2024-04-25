@@ -10,5 +10,6 @@ namespace FurniMove.Repositories.Abstract
         public Task<bool> DeleteMoveRequestByIdAsync(int id);
         public Task<bool> UpdateMoveRequestAsync(MoveRequest moveRequest);
         public Task<bool> SaveAsync();
+        public Task<MoveRequest?> GetUserCreatedRequest(string userId);
     }
 }

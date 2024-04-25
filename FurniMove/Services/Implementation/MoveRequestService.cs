@@ -14,6 +14,9 @@ namespace FurniMove.Services.Implementation
 
         public async Task<bool> CreateMoveRequest(MoveRequest moveRequest)
         {
+            var request = await _moveRequestRepo.GetUserCreatedRequest(moveRequest.customerId);
+            if (request != null) return false;
+            moveRequest.status = "Created";
             return await _moveRequestRepo.CreateMoveRequestAsync(moveRequest);
         }
 
