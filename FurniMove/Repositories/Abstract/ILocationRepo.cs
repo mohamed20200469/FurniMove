@@ -4,11 +4,11 @@ namespace FurniMove.Repositories.Abstract
 {
     public interface ILocationRepo
     {
-        public Location? GetLocationById(int id);
-        public ICollection<Location> GetAllLocations();
-        public bool UpdateLocation(Location location);
-        public bool CreateLocation(Location location);
-        public bool DeleteLocationById(int id);
-        bool Save();
+        public Task<Location?> GetLocationById(int id);
+        public Task<ICollection<Location>> GetAllLocations();
+        public Task<bool> UpdateLocation(Location location);
+        public Task<bool> CreateLocation(Location location);
+        public Task<bool> DeleteLocationById(int id);
+        public Task<bool> Save();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FurniMove.Data;
 using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
+using Microsoft.EntityFrameworkCore;
 
 namespace FurniMove.Repositories.Implementation
 {
@@ -11,41 +12,42 @@ namespace FurniMove.Repositories.Implementation
         {
             _db = db;
         }
-        public bool CreateLocation(Location location)
+        public async Task<bool> CreateLocation(Location location)
         {
-            _db.Locations.Add(location);
-            return Save();
+            await _db.Locations.AddAsync(location);
+            return await Save();
         }
 
-        public bool DeleteLocationById(int id)
+        public async Task<bool> DeleteLocationById(int id)
         {
-            var location = _db.Locations.FirstOrDefault(x => x.Id == id);
+            var location = await _db.Locations.FirstOrDefaultAsync(x => x.Id == id);
             if (location != null)
             {
                 _db.Locations.Remove(location);
             }
-            return Save();
+            return await Save();
         }
 
-        public ICollection<Location> GetAllLocations()
+        public async Task<ICollection<Location>> GetAllLocations()
         {
-            return _db.Locations.ToList();
+            return await _db.Locations.ToListAsync();
         }
 
-        public Location? GetLocationById(int id)
+        public async Task<Location?> GetLocationById(int id)
         {
-            return _db.Locations.FirstOrDefault(x => x.Id == id);
+            return await _db.Locations.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _db.SaveChanges();
+            var saved = await _db.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateLocation(Location location)
+        public async Task<bool> UpdateLocation(Location location)
         {
-            throw new NotImplementedException();
+            _db.Locations.Update(location);
+            return await Save();
         }
     }
 }

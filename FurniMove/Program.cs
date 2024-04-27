@@ -31,6 +31,7 @@ builder.Services.AddScoped<IApplianceRepo, ApplianceRepo>();
 builder.Services.AddScoped<ITruckRepo, TruckRepo>();
 builder.Services.AddScoped<ILocationRepo, LocationRepo>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
