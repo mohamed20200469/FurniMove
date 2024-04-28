@@ -5,7 +5,7 @@ namespace FurniMove.Repositories.Abstract
     public interface IMoveRequestRepo
     {
         public Task<MoveRequest?> GetMoveRequestByIdAsync(int id);
-        public Task<ICollection<MoveRequest>> GetAllMoveRequestsAsync();
+        public Task<ICollection<MoveRequest>> GetAllMoveRequestsAsync(string status);
         public Task<bool> CreateMoveRequestAsync(MoveRequest moveRequest);
         public Task<bool> DeleteMoveRequestByIdAsync(int id);
         public Task<bool> UpdateMoveRequestAsync(MoveRequest moveRequest);

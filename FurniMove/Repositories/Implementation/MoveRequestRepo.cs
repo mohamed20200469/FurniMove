@@ -35,9 +35,10 @@ namespace FurniMove.Repositories.Implementation
             return moveRequest;
         }
 
-        public async Task<ICollection<MoveRequest>> GetAllMoveRequestsAsync()
+        public async Task<ICollection<MoveRequest>> GetAllMoveRequestsAsync(string status)
         {
-            return await _db.MoveRequests.ToListAsync();
+            var list = await _db.MoveRequests.Where(x => x.status == status).ToListAsync();
+            return list;
         }
 
         public async Task<bool> SaveAsync()

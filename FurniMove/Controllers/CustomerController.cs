@@ -2,11 +2,9 @@
 using FurniMove.DTOs;
 using FurniMove.Models;
 using FurniMove.Services.Abstract;
-using FurniMove.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Cms;
 using System.Security.Claims;
 
 namespace FurniMove.Controllers
@@ -43,7 +41,7 @@ namespace FurniMove.Controllers
 
             var location = _mapper.Map<Location>(locationWriteDTO);
             var time = DateTime.UtcNow;
-            location.timeStamp = time.AddHours(2);
+            location.timeStamp = time.AddHours(3);
             var result = await _locationService.CreateLocation(location);
             if (result)
                 return Created(nameof(CreateLocation), location);

@@ -110,6 +110,41 @@ namespace FurniMove.Controllers
             }
         }
 
+        [Authorize]
+        [HttpPatch("updateUsername")]
+        public async Task<IActionResult> ChangeUsername([FromBody] string username)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userId = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+            await _userManager.SetUserNameAsync(user, username);
+            var userDTO = _mapper.Map<UserDTO>(user);
+            return Ok(userDTO);
+        }
+
+        [Authorize]
+        [HttpPatch("resetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
+        {
+            if (!ModelState.IsValid) 
+                return BadRequest(ModelState);
+
+            var userId = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.FindByIdAsync(userId);
+            var result = await _userManager.ChangePasswordAsync(user, resetPasswordDTO.currentPassword, resetPasswordDTO.newPassword);
+
+            if (result.Succeeded)
+            {
+                return Ok();
+            }
+
+            return BadRequest(result);
+        }
+
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -118,10 +153,12 @@ namespace FurniMove.Controllers
             return Ok();
         }
 
+        [Authorize]
         [HttpPatch("setPhoneNumber")]
-        public async Task<IActionResult> SetPhoneNumber(string userId, string phoneNumber)
+        public async Task<IActionResult> SetPhoneNumber(string phoneNumber)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
             string regexPattern = @"^(010|011|012|015)\d{8}$";
             if (Regex.IsMatch(phoneNumber, regexPattern))
@@ -134,8 +171,9 @@ namespace FurniMove.Controllers
 
         [Authorize]
         [HttpPost("sendEmailConfirmation")]
-        public async Task<IActionResult> SendEmailConfirmation(string email)
+        public async Task<IActionResult> SendEmailConfirmation()
         {
+            var email = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null) return NotFound();
             if (user.EmailConfirmed == true) return BadRequest("Email already confirmed");
@@ -252,13 +290,14 @@ namespace FurniMove.Controllers
         }
 
         [Authorize]
-        [HttpGet("GetCurrentUser")]
+        [HttpGet("getCurrentUser")]
         public async Task<IActionResult> GetUser()
         {
             var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
-            return Ok(user);
+            var userDTO = _mapper.Map<UserDTO>(user);
+            return Ok(userDTO);
         }
     }
 }

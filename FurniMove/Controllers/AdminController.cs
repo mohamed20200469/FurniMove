@@ -3,8 +3,6 @@ using FurniMove.DTOs;
 using FurniMove.Models;
 using FurniMove.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,16 +29,16 @@ namespace FurniMove.Controllers
             _fileService = fileService;
         }
 
-        [AllowAnonymous]
-        [HttpGet("GetAllMoveRequests")]
-        public async Task<IActionResult> GetAllMoveRequestsAsync()
+ 
+        [HttpGet("getAllMoveRequests")]
+        public async Task<IActionResult> GetAllMoveRequests(string status)
         {
-            var moveRequests = await _moveRequestService.GetMoveRequests();
+            var moveRequests = await _moveRequestService.GetMoveRequests(status);
 
             return Ok(moveRequests);
         }
 
-        [HttpGet("GetMoveRequestById")]
+        [HttpGet("getMoveRequestById")]
         public async Task<IActionResult> GetMoveRequestById(int id)
         {
             var moveRequest = await _moveRequestService.GetMoveRequestById(id);
@@ -48,13 +46,13 @@ namespace FurniMove.Controllers
             return Ok(moveRequest);
         }
 
-        [HttpGet("GetAllMoveOffers")]
-        public async Task<IActionResult> GetAllMoveOffersAsync()
+        [HttpGet("getOffersByRequestId")]
+        public async Task<IActionResult> GetAllMoveOffersAsync(int moveRequestId)
         {
-            return Ok(await _moveOfferService.GetAllMoveOffers());
+            return Ok(await _moveOfferService.GetAllMoveOffersByRequestId(moveRequestId));
         }
 
-        [HttpGet("User/{id}")]
+        [HttpGet("user={id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -62,12 +60,20 @@ namespace FurniMove.Controllers
             return Ok(user);
         }
 
-        [HttpDelete("DeleteImg")]
+        [HttpDelete("deleteImg")]
         public async Task<IActionResult> DeleteImg(string imageFileName, string folder)
         {
             var res = await _fileService.DeleteImage(imageFileName, folder);
             if (res) return Ok();
             return NotFound();
+        }
+
+        [HttpGet("getUsersByRole")]
+        public async Task<IActionResult> getUsersByRole(string role)
+        {
+            var list = await _userManager.GetUsersInRoleAsync(role);
+            var userlist = _mapper.Map<ICollection<UserDTO>>(list);
+            return Ok(userlist);
         }
     }   
 }
