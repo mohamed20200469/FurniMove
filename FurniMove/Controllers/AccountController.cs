@@ -44,7 +44,8 @@ namespace FurniMove.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email.ToLower());
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == loginDto.Email);
 
             if (user == null) return NotFound("Email not found!");
 

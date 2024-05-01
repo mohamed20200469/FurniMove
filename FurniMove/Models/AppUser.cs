@@ -11,5 +11,6 @@ namespace FurniMove.Models
         public string? UserImgURL { get; set; }
         [NotMapped]
         public IFormFile? ImgFile { get; set; }
+        public bool Suspended { get; set; } = false;
     }
 }

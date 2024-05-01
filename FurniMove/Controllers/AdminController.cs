@@ -75,5 +75,27 @@ namespace FurniMove.Controllers
             var userlist = _mapper.Map<ICollection<UserDTO>>(list);
             return Ok(userlist);
         }
+
+        [HttpPut("suspendUser")]
+        public async Task<IActionResult> suspendUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+            user.Suspended = true;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded) return Ok(_mapper.Map<UserDTO>(user));
+            return BadRequest(result.Errors);
+        }
+
+        [HttpPut("unsuspendUser")]
+        public async Task<IActionResult> unsuspendUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound();
+            user.Suspended = false;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded) return Ok(_mapper.Map<UserDTO>(user));
+            return BadRequest(result.Errors);
+        }
     }   
 }
