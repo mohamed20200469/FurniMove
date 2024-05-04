@@ -76,7 +76,7 @@ namespace FurniMove.Controllers
             return Ok(userlist);
         }
 
-        [HttpPut("suspendUser")]
+        [HttpPatch("suspendUser")]
         public async Task<IActionResult> suspendUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -87,7 +87,7 @@ namespace FurniMove.Controllers
             return BadRequest(result.Errors);
         }
 
-        [HttpPut("unsuspendUser")]
+        [HttpPatch("unsuspendUser")]
         public async Task<IActionResult> unsuspendUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);

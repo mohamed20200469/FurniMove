@@ -112,6 +112,38 @@ namespace FurniMove.Controllers
         }
 
         [Authorize]
+        [HttpPatch("updateUser")]
+        public async Task<IActionResult> UpdateUser(UpdateUserDTO updateDTO)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            var userId = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null) return NotFound("No JWT token!");
+            
+            bool result = true;
+            
+            if (user.PhoneNumber != updateDTO.PhoneNumber)
+            {
+                var result1 = await _userManager.SetPhoneNumberAsync(user, updateDTO.PhoneNumber);
+                result = result1.Succeeded;
+            }
+            
+            if (updateDTO.Password != null)
+            {
+                var result2 = await _userManager.ChangePasswordAsync(user, updateDTO.OldPassword, updateDTO.Password);
+                result = result2.Succeeded;
+            }
+
+            var userDTO = _mapper.Map<UserDTO>(user);
+            if (result) return Ok(userDTO);
+
+            return BadRequest();
+        }
+
+        /*
+        [Authorize]
         [HttpPatch("updateUsername")]
         public async Task<IActionResult> ChangeUsername([FromBody] string username)
         {
@@ -125,25 +157,7 @@ namespace FurniMove.Controllers
             var userDTO = _mapper.Map<UserDTO>(user);
             return Ok(userDTO);
         }
-
-        [Authorize]
-        [HttpPatch("resetPassword")]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDTO resetPasswordDTO)
-        {
-            if (!ModelState.IsValid) 
-                return BadRequest(ModelState);
-
-            var userId = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            var user = await _userManager.FindByIdAsync(userId);
-            var result = await _userManager.ChangePasswordAsync(user, resetPasswordDTO.currentPassword, resetPasswordDTO.newPassword);
-
-            if (result.Succeeded)
-            {
-                return Ok();
-            }
-
-            return BadRequest(result);
-        }
+        */
 
         [Authorize]
         [HttpPost("logout")]
@@ -152,22 +166,6 @@ namespace FurniMove.Controllers
             await _signInManager.SignOutAsync();
 
             return Ok();
-        }
-
-        [Authorize]
-        [HttpPatch("setPhoneNumber")]
-        public async Task<IActionResult> SetPhoneNumber(string phoneNumber)
-        {
-            var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null) return NotFound();
-            string regexPattern = @"^(010|011|012|015)\d{8}$";
-            if (Regex.IsMatch(phoneNumber, regexPattern))
-            {
-                await _userManager.SetPhoneNumberAsync(user, phoneNumber);
-                return Ok();
-            }
-            return BadRequest("Incorrect number");
         }
 
         [Authorize]
@@ -268,7 +266,7 @@ namespace FurniMove.Controllers
             return Ok("Email Confirmed!");
         }
 
-        [Authorize(Roles = "Admin, Customer, ServiceProvider")]
+        [Authorize]
         [HttpPost("addUserImg")]
         public async Task<IActionResult> AddUserImg(IFormFile img)
         {
