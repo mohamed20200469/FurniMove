@@ -17,13 +17,15 @@ namespace FurniMove.Controllers
         private IMoveOfferService _moveOfferService;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _http;
+        private readonly ITruckService _truckService;
 
         public ServiceProviderController(IMoveOfferService moveOfferService,
-            IMapper mapper, IHttpContextAccessor httpContextAccessor)
+            IMapper mapper, IHttpContextAccessor httpContextAccessor, ITruckService truckService)
         {
             _moveOfferService = moveOfferService;
             _mapper = mapper;
             _http = httpContextAccessor;
+            _truckService = truckService;
         }
 
         [HttpPost("CreateMoveOffer")]
@@ -46,5 +48,26 @@ namespace FurniMove.Controllers
             if (offer == null) { return  NotFound(); }
             return Ok(offer);
         }
+        
+        [HttpPost("AddTruck")]
+        public async Task<IActionResult> AddTruck(TruckWriteDTO truckWriteDTO)
+        {
+            if (!ModelState.IsValid) return BadRequest();
+
+            if (truckWriteDTO.year > 1980 && truckWriteDTO.year < 2024)
+            {
+                var Truck = _mapper.Map<Truck>(truckWriteDTO);
+                Truck.status = "available";
+                Truck.ServiceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                bool result = await _truckService.CreateTruck(Truck);
+                if (result)
+                {
+                    return Ok(Truck);
+                }
+                return BadRequest();
+            }
+            return BadRequest("Invalid year");
+        }
+        
     }
 }

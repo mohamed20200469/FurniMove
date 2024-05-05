@@ -7,6 +7,9 @@ namespace FurniMove.Models
     {
         [Key] 
         public int Id { get; set; }
+        public AppUser? ServiceProvider { get; set; }
+        [ForeignKey("ServiceProvider")]
+        public string? ServiceProviderId { get; set; }
         [Required]
         public string plateNumber { get; set; }
         [Required]
@@ -18,7 +21,7 @@ namespace FurniMove.Models
         [Required]
         public int capacity { get; set; }
         [Required]
-        public string status { get; set; }
+        public string status { get; set; } = "available";
         [Required]
         public double consumptionRate { get; set; }
         public Location? currentLocation { get; set; }

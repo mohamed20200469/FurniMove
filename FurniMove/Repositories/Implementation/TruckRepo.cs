@@ -1,6 +1,7 @@
 ﻿using FurniMove.Data;
 using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
+using Microsoft.EntityFrameworkCore;
 
 namespace FurniMove.Repositories.Implementation
 {
@@ -11,43 +12,43 @@ namespace FurniMove.Repositories.Implementation
         {
             _db = db;
         }
-        public bool createTruck(Truck truck)
+        public async Task<bool> CreateTruck(Truck truck)
         {
-            _db.Trucks.Add(truck);
-            return Save();
+            await _db.Trucks.AddAsync(truck);
+            return await Save();
         }
 
-        public bool deleteTruckById(int truckId)
+        public async Task<bool> DeleteTruckById(int truckId)
         {
-            var truck = _db.Trucks.FirstOrDefault(x => x.Id == truckId);
+            var truck = await _db.Trucks.FirstOrDefaultAsync(x => x.Id == truckId);
             if (truck != null)
             {
                 _db.Trucks.Remove(truck);
             }
-            return Save();
+            return await Save();
         }
 
-        public ICollection<Truck> getAllTrucks()
+        public async Task<ICollection<Truck>> GetAllTrucks()
         {
-            return _db.Trucks.ToList();
+            return await _db.Trucks.ToListAsync();
         }
 
-        public Truck? getTruckById(int truckId)
+        public async Task<Truck?> GetTruckById(int truckId)
         {
-            var truck = _db.Trucks.FirstOrDefault(x => x.Id == truckId);
+            var truck = await _db.Trucks.FirstOrDefaultAsync(x => x.Id == truckId);
             return truck;
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _db.SaveChanges();
-            return saved > 0 ? true : false;
+            var saved = await _db.SaveChangesAsync();
+            return saved > 0;
         }
 
-        public bool updateTruck(Truck truck)
+        public async Task<bool> UpdateTruck(Truck truck)
         {
             _db.Trucks.Update(truck);
-            return Save();
+            return await Save();
         }
     }
 }

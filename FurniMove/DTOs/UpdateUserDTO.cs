@@ -6,8 +6,7 @@ namespace FurniMove.DTOs
     {
         [Required]
         public string? PhoneNumber { get; set; }
-        [Required]
-        public string? OldPassword { get; set; }
+        public string? OldPassword { get; set; } = null;
         public string? Password { get; set; } = null;
     }
 }

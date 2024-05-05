@@ -4,6 +4,7 @@ using FurniMove.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FurniMove.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240505145604_TruckModelAdjustment")]
+    partial class TruckModelAdjustment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,7 +130,7 @@ namespace FurniMove.Migrations
 
                     b.HasIndex("moveRequestId");
 
-                    b.ToTable("Appliances", (string)null);
+                    b.ToTable("Appliances");
                 });
 
             modelBuilder.Entity("FurniMove.Models.Location", b =>
@@ -149,7 +152,7 @@ namespace FurniMove.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locations", (string)null);
+                    b.ToTable("Locations");
                 });
 
             modelBuilder.Entity("FurniMove.Models.MoveOffer", b =>
@@ -175,7 +178,7 @@ namespace FurniMove.Migrations
 
                     b.HasIndex("serviceProviderId");
 
-                    b.ToTable("MoveOffers", (string)null);
+                    b.ToTable("MoveOffers");
                 });
 
             modelBuilder.Entity("FurniMove.Models.MoveRequest", b =>
@@ -232,7 +235,7 @@ namespace FurniMove.Migrations
 
                     b.HasIndex("truckId");
 
-                    b.ToTable("MoveRequests", (string)null);
+                    b.ToTable("MoveRequests");
                 });
 
             modelBuilder.Entity("FurniMove.Models.Truck", b =>
@@ -280,7 +283,7 @@ namespace FurniMove.Migrations
 
                     b.HasIndex("currentLocationId");
 
-                    b.ToTable("Trucks", (string)null);
+                    b.ToTable("Trucks");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
