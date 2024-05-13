@@ -289,6 +289,24 @@ namespace FurniMove.Controllers
         }
 
         [Authorize]
+        [HttpDelete("deleteUserImg")]
+        public async Task<IActionResult> DeleteUserImg()
+        {
+            var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound("No JWT");
+            if (user.UserImgURL != null)
+            {
+                string lastPart = new Uri(user.UserImgURL).AbsolutePath.TrimEnd('/').Split('/').Last();
+                await _fileService.DeleteImage(lastPart, "ProfilePictures");
+                user.UserImgURL = null ;
+                await _userManager.UpdateAsync(user);
+                return Ok();
+            }
+            return NotFound("No User Img");
+        }
+
+        [Authorize]
         [HttpGet("getCurrentUser")]
         public async Task<IActionResult> GetUser()
         {

@@ -31,9 +31,14 @@ namespace FurniMove.Services.Implementation
             return request;
         }
 
-        public async Task<ICollection<MoveRequest>> GetMoveRequests(string status)
+        public async Task<ICollection<MoveRequest>> GetMoveRequestsByStatus(string status)
         {
-            return await _moveRequestRepo.GetAllMoveRequestsAsync(status);
+            return await _moveRequestRepo.GetMoveRequestsByStatus(status);
+        }
+
+        public async Task<ICollection<MoveRequest>> GetAllMoveRequests()
+        {
+            return await _moveRequestRepo.GetAllMoveRequests();
         }
     }
 }
