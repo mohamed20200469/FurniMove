@@ -132,9 +132,29 @@ namespace FurniMove.Controllers
         }
 
         [HttpGet("getOffersByRequestId")]
-        public async Task<IActionResult> GetAllMoveOffersAsync(int moveRequestId)
+        public async Task<IActionResult> GetAllMoveOffers(int moveRequestId)
         {
-            return Ok(await _moveOfferService.GetAllMoveOffersByRequestId(moveRequestId));
+            var moveOffers = await _moveOfferService.GetAllMoveOffersByRequestId(moveRequestId);
+
+            var moveOfferDTOs = new List<MoveOfferReadDTO>();
+
+            foreach (var moveOffer in moveOffers)
+            {
+                var serviceProvider = await _userManager.FindByIdAsync(moveOffer.serviceProviderId);
+                var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
+
+                var moveOfferDTO = new MoveOfferReadDTO
+                {
+                    Id = moveOffer.Id,
+                    ServiceProviderId = moveOffer.serviceProviderId,
+                    ServiceProvider = serviceProviderDTO,
+                    Price = moveOffer.price,
+                    MoveRequestId = moveOffer.moveRequestId
+                };
+
+                moveOfferDTOs.Add(moveOfferDTO);
+            }
+            return Ok(moveOfferDTOs);
         }
 
         [HttpGet("user={id}")]
