@@ -17,33 +17,118 @@ namespace FurniMove.Controllers
         private readonly IMoveOfferService _moveOfferService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IFileService _fileService;
+        private readonly ILocationService _locationService;
         private readonly IMapper _mapper;
         public AdminController(IMoveRequestService moveRequestService, IMapper mapper,
             IMoveOfferService moveOfferService, UserManager<AppUser> userManager,
-            IFileService fileService)
+            IFileService fileService, ILocationService locationService)
         {
             _moveRequestService = moveRequestService;
             _mapper = mapper;
             _moveOfferService = moveOfferService;
             _userManager = userManager;
             _fileService = fileService;
+            _locationService = locationService;
         }
 
  
-        [HttpGet("getAllMoveRequests")]
-        public async Task<IActionResult> GetAllMoveRequests(string status)
+        [HttpGet("getMoveRequestsByStatus")]
+        public async Task<IActionResult> GetMoveRequestsByStatus(string status)
         {
-            var moveRequests = await _moveRequestService.GetMoveRequests(status);
+            var moveRequests = await _moveRequestService.GetMoveRequestsByStatus(status);
 
-            return Ok(moveRequests);
+            var moveRequestDTOs = new List<MoveRequestReadDTO>();
+
+            foreach (var moveRequest in moveRequests)
+            {
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var customerDTO = _mapper.Map<UserDTO>(customer);
+
+                var moveRequestDTO = new MoveRequestReadDTO
+                {
+                    Id = moveRequest.Id,
+                    StartLocation = startLocation,
+                    EndLocation = endLocation,
+                    CustomerId = moveRequest.customerId,
+                    Customer = customerDTO,
+                    Status = moveRequest.status,
+                    StartTime = moveRequest.startTime,
+                    EndTime = moveRequest.endTime,
+                    Rating = moveRequest.rating,
+                    Cost = moveRequest.cost,
+                    NumOfAppliances = moveRequest.numOfAppliances,
+                };
+
+                moveRequestDTOs.Add(moveRequestDTO);
+            }
+
+            return Ok(moveRequestDTOs);
         }
+
+        [HttpGet("getAllMoveRequests")]
+        public async Task<IActionResult> GetAllMoveRequests()
+        {
+            var moveRequests = await _moveRequestService.GetAllMoveRequests();
+
+            var moveRequestDTOs = new List<MoveRequestReadDTO>();
+
+            foreach (var moveRequest in moveRequests)
+            {
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var customerDTO = _mapper.Map<UserDTO>(customer);
+
+                var moveRequestDTO = new MoveRequestReadDTO
+                {
+                    Id = moveRequest.Id,
+                    StartLocation = startLocation,
+                    EndLocation = endLocation,
+                    CustomerId = moveRequest.customerId,
+                    Customer = customerDTO,
+                    Status = moveRequest.status,
+                    StartTime = moveRequest.startTime,
+                    EndTime = moveRequest.endTime,
+                    Rating = moveRequest.rating,
+                    Cost = moveRequest.cost,
+                    NumOfAppliances = moveRequest.numOfAppliances,
+                };
+
+                moveRequestDTOs.Add(moveRequestDTO);
+            }
+
+            return Ok(moveRequestDTOs);
+        }
+
 
         [HttpGet("getMoveRequestById")]
         public async Task<IActionResult> GetMoveRequestById(int id)
         {
             var moveRequest = await _moveRequestService.GetMoveRequestById(id);
             if (moveRequest == null) return NotFound();
-            return Ok(moveRequest);
+            
+            var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
+            var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
+            var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+            var customerDTO = _mapper.Map<UserDTO>(customer);
+
+            var moveRequestDTO = new MoveRequestReadDTO
+            {
+                Id = moveRequest.Id,
+                StartLocation = startLocation,
+                EndLocation = endLocation,
+                CustomerId = moveRequest.customerId,
+                Customer = customerDTO,
+                Status = moveRequest.status,
+                StartTime = moveRequest.startTime,
+                EndTime = moveRequest.endTime,
+                Rating = moveRequest.rating,
+                Cost = moveRequest.cost,
+                NumOfAppliances = moveRequest.numOfAppliances,
+            };
+            return Ok(moveRequestDTO);
         }
 
         [HttpGet("getOffersByRequestId")]

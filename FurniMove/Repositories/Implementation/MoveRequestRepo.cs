@@ -35,7 +35,7 @@ namespace FurniMove.Repositories.Implementation
             return moveRequest;
         }
 
-        public async Task<ICollection<MoveRequest>> GetAllMoveRequestsAsync(string status)
+        public async Task<ICollection<MoveRequest>> GetMoveRequestsByStatus(string status)
         {
             var list = await _db.MoveRequests.Where(x => x.status == status).ToListAsync();
             return list;
@@ -58,6 +58,12 @@ namespace FurniMove.Repositories.Implementation
             var request = await _db.MoveRequests.FirstOrDefaultAsync(
                 x => x.customerId == userId && x.status != "Completed");
             return request;
+        }
+
+        public async Task<ICollection<MoveRequest>> GetAllMoveRequests()
+        {
+            var list = await _db.MoveRequests.ToListAsync();
+            return list;
         }
     }
 }
