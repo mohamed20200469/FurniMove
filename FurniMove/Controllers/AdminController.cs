@@ -31,40 +31,20 @@ namespace FurniMove.Controllers
             _locationService = locationService;
         }
 
- 
+
         [HttpGet("getMoveRequestsByStatus")]
         public async Task<IActionResult> GetMoveRequestsByStatus(string status)
         {
-            var moveRequests = await _moveRequestService.GetMoveRequestsByStatus(status);
-
-            var moveRequestDTOs = new List<MoveRequestReadDTO>();
-
-            foreach (var moveRequest in moveRequests)
+            try
             {
-                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
-                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
-                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
-                var customerDTO = _mapper.Map<UserDTO>(customer);
-
-                var moveRequestDTO = new MoveRequestReadDTO
-                {
-                    Id = moveRequest.Id,
-                    StartLocation = startLocation,
-                    EndLocation = endLocation,
-                    CustomerId = moveRequest.customerId,
-                    Customer = customerDTO,
-                    Status = moveRequest.status,
-                    StartTime = moveRequest.startTime,
-                    EndTime = moveRequest.endTime,
-                    Rating = moveRequest.rating,
-                    Cost = moveRequest.cost,
-                    NumOfAppliances = moveRequest.numOfAppliances,
-                };
-
-                moveRequestDTOs.Add(moveRequestDTO);
+                var result = await _moveRequestService.GetMoveRequestsByStatus(status);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
 
-            return Ok(moveRequestDTOs);
+            return Ok(result);
         }
 
         [HttpGet("getAllMoveRequests")]
@@ -108,7 +88,7 @@ namespace FurniMove.Controllers
         {
             var moveRequest = await _moveRequestService.GetMoveRequestById(id);
             if (moveRequest == null) return NotFound();
-            
+
             var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
             var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
             var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
@@ -202,5 +182,5 @@ namespace FurniMove.Controllers
             if (result.Succeeded) return Ok(_mapper.Map<UserDTO>(user));
             return BadRequest(result.Errors);
         }
-    }   
+    }
 }

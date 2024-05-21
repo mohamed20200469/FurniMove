@@ -1,6 +1,8 @@
-﻿using FurniMove.Models;
+﻿using FurniMove.DTOs;
+using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
 using FurniMove.Services.Abstract;
+using FurniMove.Mapper;
 
 namespace FurniMove.Services.Implementation
 {
@@ -31,9 +33,24 @@ namespace FurniMove.Services.Implementation
             return request;
         }
 
-        public async Task<ICollection<MoveRequest>> GetMoveRequestsByStatus(string status)
+        public async Task<List<MoveRequestReadDTO>> GetMoveRequestsByStatus(string status)
         {
-            return await _moveRequestRepo.GetMoveRequestsByStatus(status);
+            var moveRequests = await _moveRequestRepo.GetMoveRequestsByStatus(status);
+
+            var moveRequestDTOs = new List<MoveRequestReadDTO>();
+
+            foreach (var moveRequest in moveRequests)
+            {
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var customerDTO = _mapper.Map<UserDTO>(customer);
+
+                var moveRequestDTO = moveRequest.ToMoveRequestDTO();
+
+                moveRequestDTOs.Add(moveRequestDTO);
+            }
+            return moveRequestDTOs;
         }
 
         public async Task<ICollection<MoveRequest>> GetAllMoveRequests()
