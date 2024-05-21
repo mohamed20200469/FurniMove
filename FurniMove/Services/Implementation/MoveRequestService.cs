@@ -3,14 +3,23 @@ using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
 using FurniMove.Services.Abstract;
 using FurniMove.Mapper;
+using Microsoft.AspNetCore.Identity;
+using AutoMapper;
 
 namespace FurniMove.Services.Implementation
 {
     public class MoveRequestService : IMoveRequestService
     {
+        private readonly IMapper _mapper;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly ILocationService _locationService;
         private readonly IMoveRequestRepo _moveRequestRepo;
-        public MoveRequestService(IMoveRequestRepo moveRequestRepo)
+        public MoveRequestService(IMoveRequestRepo moveRequestRepo, ILocationService locationService,
+            UserManager<AppUser> userManager, IMapper mapper)
         {
+            _mapper = mapper;
+            _userManager = userManager;
+            _locationService = locationService;
             _moveRequestRepo = moveRequestRepo;
         }
 
@@ -46,7 +55,7 @@ namespace FurniMove.Services.Implementation
                 var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
                 var customerDTO = _mapper.Map<UserDTO>(customer);
 
-                var moveRequestDTO = moveRequest.ToMoveRequestDTO();
+                var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO);
 
                 moveRequestDTOs.Add(moveRequestDTO);
             }

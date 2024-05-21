@@ -3,9 +3,10 @@ using FurniMove.Models;
 
 namespace FurniMove.Mapper
 {
-    public class MoveRequestMappers
+    public static class MoveRequestMappers
     {
-        public static MoveRequestReadDTO ToMoveRequestDTO(this MoveRequest moveRequest)
+        public static MoveRequestReadDTO ToMoveRequestDTO(this MoveRequest moveRequest, Location startLocation,
+            Location endLocation, UserDTO customerDTO)
         {
             return new MoveRequestReadDTO
             {

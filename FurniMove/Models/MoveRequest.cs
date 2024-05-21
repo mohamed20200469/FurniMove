@@ -15,10 +15,10 @@ namespace FurniMove.Models
         public string? serviceProviderId { get; set; }
         [Required]
         public required string status { get; set; }
-        public DateTime startTime { get; set; }
-        public DateTime endTime { get; set; }
-        public int rating { get; set; }
-        public double cost { get; set; }
+        public DateTime? startTime { get; set; }
+        public DateTime? endTime { get; set; }
+        public int? rating { get; set; }
+        public double? cost { get; set; }
         public int numOfAppliances { get; set; }
         public ICollection<Appliance> appliances { get; } = new List<Appliance>();
         public Location? startLocation { get; set; }
@@ -29,7 +29,7 @@ namespace FurniMove.Models
         public int endLocationId { get; set; }
         public Truck? truck { get; set; }
         [ForeignKey("truck")]
-        public int truckId { get;set; }
+        public int? truckId { get;set; }
 
     }
 }

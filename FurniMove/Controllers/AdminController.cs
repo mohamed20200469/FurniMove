@@ -38,13 +38,12 @@ namespace FurniMove.Controllers
             try
             {
                 var result = await _moveRequestService.GetMoveRequestsByStatus(status);
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
-            return Ok(result);
         }
 
         [HttpGet("getAllMoveRequests")]
