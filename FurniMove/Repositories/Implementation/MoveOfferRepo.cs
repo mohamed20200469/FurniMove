@@ -34,12 +34,12 @@ namespace FurniMove.Repositories.Implementation
             return await Save();
         }
 
-        public async Task<ICollection<MoveOffer>> GetAllMoveOffers()
+        public async Task<List<MoveOffer>> GetAllMoveOffers()
         {
             return await _db.MoveOffers.ToListAsync();
         }
 
-        public async Task<ICollection<MoveOffer>?> GetAllMoveOffersByRequestID(int id)
+        public async Task<List<MoveOffer>?> GetAllMoveOffersByRequestID(int id)
         {
             var request = await _db.MoveRequests.FirstOrDefaultAsync(o => o.Id == id);
             if (request != null)

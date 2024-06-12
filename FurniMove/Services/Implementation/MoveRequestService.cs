@@ -31,9 +31,19 @@ namespace FurniMove.Services.Implementation
             return await _moveRequestRepo.CreateMoveRequestAsync(moveRequest);
         }
 
-        public async Task<MoveRequest?> GetMoveRequestById(int id)
+        public async Task<MoveRequestReadDTO?> GetMoveRequestById(int id)
         {
-            return await _moveRequestRepo.GetMoveRequestByIdAsync(id);
+            var moveRequest = await _moveRequestRepo.GetMoveRequestByIdAsync(id);
+
+            if (moveRequest == null) return null;
+
+            var startLocation = await _locationService.GetLocationById(moveRequest!.startLocationId);
+            var endLocation = await _locationService.GetLocationById(moveRequest.endLocationId);
+            var customer = await _userManager.FindByIdAsync(moveRequest.customerId!);
+            var customerDTO = _mapper.Map<UserDTO>(customer);
+
+            var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO);
+            return moveRequestDTO;
         }
 
         public async Task<MoveRequest?> GetMoveRequestByUserId(string userId)
@@ -62,9 +72,25 @@ namespace FurniMove.Services.Implementation
             return moveRequestDTOs;
         }
 
-        public async Task<ICollection<MoveRequest>> GetAllMoveRequests()
+        public async Task<List<MoveRequestReadDTO>> GetAllMoveRequests()
         {
-            return await _moveRequestRepo.GetAllMoveRequests();
+            var moveRequests = await _moveRequestRepo.GetAllMoveRequests();
+
+            var moveRequestDTOs = new List<MoveRequestReadDTO>();
+
+            foreach (var moveRequest in moveRequests)
+            {
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var customerDTO = _mapper.Map<UserDTO>(customer);
+
+                var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO);
+
+                moveRequestDTOs.Add(moveRequestDTO);
+            }
+
+            return moveRequestDTOs;
         }
     }
 }

@@ -8,5 +8,6 @@ namespace FurniMove.Services.Abstract
         MimeMessage CreateEmailMessage(Message message);
         void Send(MimeMessage message);
         void SendEmail(Message message);
+        public void ConfirmEmailAddress(string email, string confirmationLink);
     }
 }

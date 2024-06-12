@@ -23,5 +23,6 @@ namespace FurniMove.Mapper
                 NumOfAppliances = moveRequest.numOfAppliances,
             };
         }
+
     }
 }

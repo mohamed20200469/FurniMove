@@ -7,8 +7,8 @@ namespace FurniMove.Services.Abstract
     {
         public Task<bool> CreateMoveRequest(MoveRequest moveRequest);
         public Task<List<MoveRequestReadDTO>> GetMoveRequestsByStatus(string status);
-        public Task<ICollection<MoveRequest>> GetAllMoveRequests();
-        public Task<MoveRequest?> GetMoveRequestById(int id);
+        public Task<List<MoveRequestReadDTO>> GetAllMoveRequests();
+        public Task<MoveRequestReadDTO?> GetMoveRequestById(int id);
         public Task<MoveRequest?> GetMoveRequestByUserId(string userId);
 
     }

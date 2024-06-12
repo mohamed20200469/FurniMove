@@ -17,18 +17,16 @@ namespace FurniMove.Controllers
         private readonly IMoveOfferService _moveOfferService;
         private readonly UserManager<AppUser> _userManager;
         private readonly IFileService _fileService;
-        private readonly ILocationService _locationService;
         private readonly IMapper _mapper;
         public AdminController(IMoveRequestService moveRequestService, IMapper mapper,
             IMoveOfferService moveOfferService, UserManager<AppUser> userManager,
-            IFileService fileService, ILocationService locationService)
+            IFileService fileService)
         {
             _moveRequestService = moveRequestService;
             _mapper = mapper;
             _moveOfferService = moveOfferService;
             _userManager = userManager;
             _fileService = fileService;
-            _locationService = locationService;
         }
 
 
@@ -49,91 +47,44 @@ namespace FurniMove.Controllers
         [HttpGet("getAllMoveRequests")]
         public async Task<IActionResult> GetAllMoveRequests()
         {
-            var moveRequests = await _moveRequestService.GetAllMoveRequests();
-
-            var moveRequestDTOs = new List<MoveRequestReadDTO>();
-
-            foreach (var moveRequest in moveRequests)
+            try
             {
-                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
-                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
-                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
-                var customerDTO = _mapper.Map<UserDTO>(customer);
-
-                var moveRequestDTO = new MoveRequestReadDTO
-                {
-                    Id = moveRequest.Id,
-                    StartLocation = startLocation,
-                    EndLocation = endLocation,
-                    CustomerId = moveRequest.customerId,
-                    Customer = customerDTO,
-                    Status = moveRequest.status,
-                    StartTime = moveRequest.startTime,
-                    EndTime = moveRequest.endTime,
-                    Rating = moveRequest.rating,
-                    Cost = moveRequest.cost,
-                    NumOfAppliances = moveRequest.numOfAppliances,
-                };
-
-                moveRequestDTOs.Add(moveRequestDTO);
+                var moveRequestDTOs = await _moveRequestService.GetAllMoveRequests();
+                return Ok(moveRequestDTOs);
             }
-
-            return Ok(moveRequestDTOs);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 
         [HttpGet("getMoveRequestById")]
         public async Task<IActionResult> GetMoveRequestById(int id)
         {
-            var moveRequest = await _moveRequestService.GetMoveRequestById(id);
-            if (moveRequest == null) return NotFound();
-
-            var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
-            var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
-            var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
-            var customerDTO = _mapper.Map<UserDTO>(customer);
-
-            var moveRequestDTO = new MoveRequestReadDTO
+            try
             {
-                Id = moveRequest.Id,
-                StartLocation = startLocation,
-                EndLocation = endLocation,
-                CustomerId = moveRequest.customerId,
-                Customer = customerDTO,
-                Status = moveRequest.status,
-                StartTime = moveRequest.startTime,
-                EndTime = moveRequest.endTime,
-                Rating = moveRequest.rating,
-                Cost = moveRequest.cost,
-                NumOfAppliances = moveRequest.numOfAppliances,
-            };
-            return Ok(moveRequestDTO);
+                var moveRequestDTO = await _moveRequestService.GetMoveRequestById(id);
+                if (moveRequestDTO == null) return NotFound();
+                return Ok(moveRequestDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("getOffersByRequestId")]
         public async Task<IActionResult> GetAllMoveOffers(int moveRequestId)
         {
-            var moveOffers = await _moveOfferService.GetAllMoveOffersByRequestId(moveRequestId);
-
-            var moveOfferDTOs = new List<MoveOfferReadDTO>();
-
-            foreach (var moveOffer in moveOffers)
+            try
             {
-                var serviceProvider = await _userManager.FindByIdAsync(moveOffer.serviceProviderId);
-                var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
-
-                var moveOfferDTO = new MoveOfferReadDTO
-                {
-                    Id = moveOffer.Id,
-                    ServiceProviderId = moveOffer.serviceProviderId,
-                    ServiceProvider = serviceProviderDTO,
-                    Price = moveOffer.price,
-                    MoveRequestId = moveOffer.moveRequestId
-                };
-
-                moveOfferDTOs.Add(moveOfferDTO);
+                var moveOfferDTOs = await _moveOfferService.GetAllMoveOffersByRequestId(moveRequestId);
+                return Ok(moveOfferDTOs);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
-            return Ok(moveOfferDTOs);
         }
 
         [HttpGet("user={id}")]
