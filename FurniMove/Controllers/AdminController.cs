@@ -104,7 +104,7 @@ namespace FurniMove.Controllers
         }
 
         [HttpGet("getUsersByRole")]
-        public async Task<IActionResult> getUsersByRole(string role)
+        public async Task<IActionResult> GetUsersByRole(string role)
         {
             var list = await _userManager.GetUsersInRoleAsync(role);
             var userlist = _mapper.Map<ICollection<UserDTO>>(list);
@@ -112,7 +112,7 @@ namespace FurniMove.Controllers
         }
 
         [HttpPatch("suspendUser")]
-        public async Task<IActionResult> suspendUser(string userId)
+        public async Task<IActionResult> SuspendUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();
@@ -123,7 +123,7 @@ namespace FurniMove.Controllers
         }
 
         [HttpPatch("unsuspendUser")]
-        public async Task<IActionResult> unsuspendUser(string userId)
+        public async Task<IActionResult> UnSuspendUser(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound();

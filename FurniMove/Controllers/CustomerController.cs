@@ -49,24 +49,22 @@ namespace FurniMove.Controllers
         }
 
         [HttpPost("CreateMoveRequest")]
-        public async Task<IActionResult> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO)
+        public async Task<IActionResult> CreateMoveRequest(MoveRequestWriteDTO moveRequestWriteDTO)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var moveRequest = _mapper.Map<MoveRequest>(moveRequestDTO);
             var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(userId);
-            moveRequest.customerId = userId;
 
-            if (moveRequest != null && moveRequest.numOfAppliances > 0)
+            if (moveRequestWriteDTO.numOfAppliances > 0)
             {
-
-                if(await _moveRequestService.CreateMoveRequest(moveRequest))
+                var moveRequestReadDTO = await _moveRequestService.CreateMoveRequest(moveRequestWriteDTO, userId);
+                if (moveRequestReadDTO != null)
                 {
                     user.MoveCounter++;
                     await _userManager.UpdateAsync(user);
-                    return Created(nameof(CreateMoveRequest), moveRequest);
+                    return Created(nameof(CreateMoveRequest), moveRequestReadDTO);
                 }
                 return BadRequest("User already has an ongoing move request");
             }

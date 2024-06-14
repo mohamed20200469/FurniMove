@@ -12,7 +12,11 @@ namespace FurniMove.Mapper
             {
                 Id = moveRequest.Id,
                 StartLocation = startLocation,
+                StartAddress = moveRequest.StartAddress,
                 EndLocation = endLocation,
+                EndAddress = moveRequest.EndAddress,
+                ETA = moveRequest.ETA,
+                Distance = moveRequest.Distance,
                 CustomerId = moveRequest.customerId,
                 Customer = customerDTO,
                 Status = moveRequest.status,
@@ -21,6 +25,17 @@ namespace FurniMove.Mapper
                 Rating = moveRequest.rating,
                 Cost = moveRequest.cost,
                 NumOfAppliances = moveRequest.numOfAppliances,
+            };
+        }
+
+        public static MoveRequest ToMoveRequest(this MoveRequestWriteDTO dto)
+        {
+            return new MoveRequest
+            {
+                startLocationId = dto.startLocationId,
+                endLocationId = dto.endLocationId,
+                numOfAppliances = dto.numOfAppliances,
+                startTime = dto.DateTime
             };
         }
 

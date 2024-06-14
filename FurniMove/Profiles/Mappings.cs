@@ -8,7 +8,6 @@ namespace FurniMove.Profiles
     {
         public Mappings()
         {
-            CreateMap<MoveRequestWriteDTO, MoveRequest>();
             CreateMap<MoveOfferWriteDTO, MoveOffer>();
             CreateMap<AppUser, UserDTO>();
             CreateMap<LocationWriteDTO, Location>();

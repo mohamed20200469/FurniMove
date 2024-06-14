@@ -4,6 +4,7 @@ using FurniMove.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FurniMove.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240614132702_MoveRequestAdjustment")]
+    partial class MoveRequestAdjustment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -192,10 +195,10 @@ namespace FurniMove.Migrations
                     b.Property<float>("ETA")
                         .HasColumnType("real");
 
-                    b.Property<string>("EndAddress")
+                    b.Property<string>("EndAdress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StartAddress")
+                    b.Property<string>("StartAdress")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double?>("cost")

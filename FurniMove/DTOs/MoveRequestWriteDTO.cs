@@ -10,5 +10,7 @@ namespace FurniMove.DTOs
         public int endLocationId { get; set; }
         [Required]
         public int numOfAppliances { get; set; }
+        [Required]
+        public DateTime DateTime {  get; set; }
     }
 }

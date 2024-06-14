@@ -14,7 +14,7 @@ namespace FurniMove.Models
         [ForeignKey("serviceProvider")]
         public string? serviceProviderId { get; set; }
         [Required]
-        public required string status { get; set; }
+        public string status { get; set; }
         public DateTime? startTime { get; set; }
         public DateTime? endTime { get; set; }
         public int? rating { get; set; }
@@ -24,12 +24,17 @@ namespace FurniMove.Models
         public Location? startLocation { get; set; }
         public Location? endLocation { get; set;}
         [ForeignKey("startLocation")]
-        public int startLocationId { get; set; }
+        public int? startLocationId { get; set; }
         [ForeignKey("endLocation")]
-        public int endLocationId { get; set; }
+        public int? endLocationId { get; set; }
         public Truck? truck { get; set; }
         [ForeignKey("truck")]
         public int? truckId { get;set; }
+
+        public string? StartAddress { get; set; }
+        public string? EndAddress { get; set; }
+        public double Distance { get; set; }
+        public float ETA { get; set; }
 
     }
 }

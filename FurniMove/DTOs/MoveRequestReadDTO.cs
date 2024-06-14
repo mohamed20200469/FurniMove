@@ -16,5 +16,9 @@ namespace FurniMove.DTOs
         public int? Rating { get; set; }
         public double? Cost { get; set; }
         public int NumOfAppliances { get; set; }
+        public string? StartAddress { get; set; }
+        public string? EndAddress { get; set; }
+        public double Distance { get; set; }
+        public float ETA { get; set; }
     }
 }
