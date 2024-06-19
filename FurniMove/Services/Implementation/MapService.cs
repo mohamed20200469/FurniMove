@@ -32,15 +32,29 @@ namespace FurniMove.Services.Implementation
 
         public async Task<string> GetAddress(double latitude, double longitude)
         {
-            using (var client = new HttpClient())
-            {
-                var requestUrl = $"https://maps.googleapis.com/maps/api/geocode/json?latlng={latitude},{longitude}&key={_apiKey}";
-                var response = await client.GetStringAsync(requestUrl);
-                var json = JObject.Parse(response);
+            using var client = new HttpClient();
+            var requestUrl = $"https://maps.googleapis.com/maps/api/geocode/json?latlng={latitude},{longitude}&key={_apiKey}";
+            var response = await client.GetStringAsync(requestUrl);
+            var json = JObject.Parse(response);
 
-                var address = json["results"][0]["formatted_address"].Value<string>();
-                return address;
+            var formattedAddress = json["results"]![0]!["formatted_address"]!.Value<string>();
+
+            // Split the address into parts using commas
+            var addressParts = formattedAddress!.Split(',');
+
+            if (addressParts.Length < 3)
+            {
+                return "Invalid address format";
             }
+
+            // Get the parts you want
+            var firstPart = addressParts[0].Trim();
+            var secondPart = addressParts[2].Trim();
+            var thirdPart = addressParts[3].Trim();
+
+            // Construct the new address string
+            var newAddress = $"{firstPart}, {secondPart}, {thirdPart}";
+            return newAddress;
         }
     }
 }
