@@ -50,5 +50,12 @@ namespace FurniMove.Repositories.Implementation
             _db.Trucks.Update(truck);
             return await Save();
         }
+
+        public async Task<bool> CheckAvailable(string ServiceProviderId, string VehicleType)
+        {
+            if(await _db.Trucks.AnyAsync(x => x.ServiceProviderId == ServiceProviderId &&
+            x.Type == VehicleType && x.status == "Available")) return true;
+            return false;
+        }
     }
 }

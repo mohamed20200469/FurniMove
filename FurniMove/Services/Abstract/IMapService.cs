@@ -4,5 +4,6 @@
     {
         public Task<(double DistanceInKm, double DurationInMinutes)> GetDistanceAndEta(double lat1, double lon1, double lat2, double lon2);
         public Task<string> GetAddress(double latitude, double longitude);
+        Task<(double Latitude, double Longitude)?> SnapToRoads(double latitude, double longitude);
     }
 }

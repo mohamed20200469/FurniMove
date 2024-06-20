@@ -37,5 +37,10 @@ namespace FurniMove.Services.Implementation
         {
             return await _truckRepo.CreateTruck(truck);
         }
+
+        public async Task<bool> CheckAvailable(string serviceProviderId, string VehicleType)
+        {
+            return await _truckRepo.CheckAvailable(serviceProviderId, VehicleType);
+        }
     }
 }

@@ -5,7 +5,7 @@ namespace FurniMove.Models
 {
     public class Truck
     {
-        [Key] 
+        [Key]
         public int Id { get; set; }
         public AppUser? ServiceProvider { get; set; }
         [ForeignKey("ServiceProvider")]
@@ -21,11 +21,13 @@ namespace FurniMove.Models
         [Required]
         public int capacity { get; set; }
         [Required]
-        public string status { get; set; } = "available";
+        public string status { get; set; } = "Available";
         [Required]
         public double consumptionRate { get; set; }
         public Location? currentLocation { get; set; }
         [ForeignKey("currentLocation")]
         public int? currentLocationId { get; set; }
+        [Required]
+        public string? Type { get; set; }
     }
 }

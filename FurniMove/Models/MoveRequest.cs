@@ -15,6 +15,8 @@ namespace FurniMove.Models
         public string? serviceProviderId { get; set; }
         [Required]
         public string status { get; set; }
+        [Required]
+        public string? VehicleType { get; set; }
         public DateTime? startTime { get; set; }
         public DateTime? endTime { get; set; }
         public int? rating { get; set; }
@@ -30,7 +32,6 @@ namespace FurniMove.Models
         public Truck? truck { get; set; }
         [ForeignKey("truck")]
         public int? truckId { get;set; }
-
         public string? StartAddress { get; set; }
         public string? EndAddress { get; set; }
         public double Distance { get; set; }

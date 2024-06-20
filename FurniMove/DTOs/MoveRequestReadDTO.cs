@@ -20,5 +20,6 @@ namespace FurniMove.DTOs
         public string? EndAddress { get; set; }
         public double Distance { get; set; }
         public float ETA { get; set; }
+        public string? VehicleType { get; set; }
     }
 }

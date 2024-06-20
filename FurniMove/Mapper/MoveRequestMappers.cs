@@ -22,6 +22,7 @@ namespace FurniMove.Mapper
                 Status = moveRequest.status,
                 StartTime = moveRequest.startTime,
                 EndTime = moveRequest.endTime,
+                VehicleType = moveRequest.VehicleType,
                 Rating = moveRequest.rating,
                 Cost = moveRequest.cost,
                 NumOfAppliances = moveRequest.numOfAppliances,
@@ -35,7 +36,8 @@ namespace FurniMove.Mapper
                 startLocationId = dto.startLocationId,
                 endLocationId = dto.endLocationId,
                 numOfAppliances = dto.numOfAppliances,
-                startTime = dto.DateTime
+                startTime = dto.DateTime,
+                VehicleType = dto.VehicleType
             };
         }
 

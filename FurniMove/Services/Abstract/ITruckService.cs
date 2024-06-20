@@ -9,5 +9,6 @@ namespace FurniMove.Services.Abstract
         public Task<bool> DeleteTruckById(int truckId);
         public Task<bool> CreateTruck(Truck truck);
         public Task<ICollection<Truck>> GetAllTrucks();
+        Task<bool> CheckAvailable(string serviceProviderId, string VehicleType);
     }
 }

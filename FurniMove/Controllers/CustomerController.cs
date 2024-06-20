@@ -20,10 +20,11 @@ namespace FurniMove.Controllers
         private readonly IMoveOfferService _moveOfferService;
         private readonly ILocationService _locationService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IMapService _mapService;
 
         public CustomerController(IMapper mapper, IMoveRequestService moveRequestService, 
             IHttpContextAccessor httpContextAccessor, IMoveOfferService moveOfferService,
-            ILocationService locationService, UserManager<AppUser> userManager) 
+            ILocationService locationService, UserManager<AppUser> userManager, IMapService mapService) 
         {
             _mapper = mapper;
             _moveRequestService = moveRequestService;
@@ -31,6 +32,7 @@ namespace FurniMove.Controllers
             _moveOfferService = moveOfferService;
             _locationService = locationService;
             _userManager = userManager;
+            _mapService = mapService;
         }
 
         [HttpPost("CreateLocation")]
@@ -42,6 +44,7 @@ namespace FurniMove.Controllers
             var location = _mapper.Map<Location>(locationWriteDTO);
             var time = DateTime.UtcNow;
             location.timeStamp = time.AddHours(3);
+
             var result = await _locationService.CreateLocation(location);
             if (result)
                 return Created(nameof(CreateLocation), location);
@@ -69,6 +72,22 @@ namespace FurniMove.Controllers
                 return BadRequest("User already has an ongoing move request");
             }
             return BadRequest();
+        }
+
+        [HttpGet("GetAddress")]
+        public async Task<IActionResult> GetAddress(int locationId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var location = await _locationService.GetLocationById(locationId);
+
+            if (location == null) return NotFound();
+
+            var address = await _mapService.GetAddress(location.latitude, location.longitude);
+            return Ok(address);
         }
 
         [HttpGet("GetOffers")]

@@ -56,5 +56,29 @@ namespace FurniMove.Services.Implementation
             var newAddress = $"{firstPart}, {secondPart}, {thirdPart}";
             return newAddress;
         }
+
+        public async Task<(double Latitude, double Longitude)?> SnapToRoads(double latitude, double longitude)
+        {
+            using (var client = new HttpClient())
+            {
+                var requestUrl = $"https://roads.googleapis.com/v1/snapToRoads?path={latitude},{longitude}&key={_apiKey}";
+                var response = await client.GetStringAsync(requestUrl);
+                var json = JObject.Parse(response);
+
+                var snappedPoints = json["snappedPoints"] as JArray;
+                if (snappedPoints != null && snappedPoints.Count > 0)
+                {
+                    var location = snappedPoints[0]["location"];
+                    var snappedLatitude = location["latitude"].Value<double>();
+                    var snappedLongitude = location["longitude"].Value<double>();
+                    return (snappedLatitude, snappedLongitude);
+                }
+                else
+                {
+                    return null; // Return null if no snapped point is found
+                }
+            }
+        }
+
     }
 }

@@ -12,5 +12,7 @@ namespace FurniMove.DTOs
         public int numOfAppliances { get; set; }
         [Required]
         public DateTime DateTime {  get; set; }
+        [Required]
+        public string? VehicleType { get; set; }
     }
 }

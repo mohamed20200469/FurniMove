@@ -10,5 +10,6 @@ namespace FurniMove.Repositories.Abstract
         public Task<bool> CreateTruck(Truck truck);
         public Task<ICollection<Truck>> GetAllTrucks();
         public Task<bool> Save();
+        Task<bool> CheckAvailable(string ServiceProviderId, string VehicleType);
     }
 }
