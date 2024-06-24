@@ -1,5 +1,8 @@
-﻿using FurniMove.Models;
+﻿using AutoMapper;
+using FurniMove.DTOs;
+using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
+using FurniMove.Repositories.Implementation;
 using FurniMove.Services.Abstract;
 using System.Diagnostics;
 
@@ -8,10 +11,15 @@ namespace FurniMove.Services.Implementation
     public class TruckService : ITruckService
     {
         private readonly ITruckRepo _truckRepo;
+        private readonly IMapper _mapper;
+        private readonly ILocationService _locationService;
 
-        public TruckService(ITruckRepo truckRepo)
+        public TruckService(ITruckRepo truckRepo, IMapper mapper,
+            ILocationService locationService)
         {
             _truckRepo = truckRepo;
+            _mapper = mapper;
+            _locationService = locationService;
         }
         public async Task<bool> CreateTruck(Truck truck)
         {
@@ -38,9 +46,34 @@ namespace FurniMove.Services.Implementation
             return await _truckRepo.CreateTruck(truck);
         }
 
-        public async Task<bool> CheckAvailable(string serviceProviderId, string VehicleType)
+        public async Task<bool> CheckAvailable(string serviceProviderId, string VehicleType, DateOnly date)
         {
-            return await _truckRepo.CheckAvailable(serviceProviderId, VehicleType);
+            return await _truckRepo.CheckAvailable(serviceProviderId, VehicleType, date);
+        }
+
+        public async Task<Location?> UpdateOrAddTruckLocation(string serviceProviderId, LocationWriteDTO locationDTO)
+        {
+            var truck = await _truckRepo.GetTuckBySP(serviceProviderId);
+            if (truck == null)
+            {
+                return null;
+            }
+            var time = DateTime.UtcNow;
+            if (truck.CurrentLocationId != null)
+            {
+                var location = await _locationService.GetLocationById((int)truck.CurrentLocationId);
+                location!.longitude = locationDTO.longitude; 
+                location.latitude = locationDTO.latitude;
+                location.timeStamp = time.AddHours(3);
+                var result = await _locationService.UpdateLocation(location);
+                return location;
+            }
+            var location2 = _mapper.Map<Location>(locationDTO);
+            location2.timeStamp = time.AddHours(3);
+            var result2 = await _locationService.CreateLocation(location2);
+            truck.CurrentLocationId = location2.Id;
+            var result3 = await _truckRepo.UpdateTruck(truck);
+            return location2;
         }
     }
 }

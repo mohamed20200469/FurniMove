@@ -12,5 +12,6 @@ namespace FurniMove.Repositories.Abstract
         public Task<bool> UpdateMoveRequestAsync(MoveRequest moveRequest);
         public Task<bool> SaveAsync();
         public Task<MoveRequest?> GetUserCreatedRequest(string userId);
+        public Task<List<MoveRequest>> GetMoveRequestsByServiceProvider(string serviceProviderId);
     }
 }

@@ -7,5 +7,6 @@
         public UserDTO? ServiceProvider { get; set; }
         public int Price { get; set; }
         public int? MoveRequestId { get; set; }
+        public bool Accepted { get; set; }
     }
 }

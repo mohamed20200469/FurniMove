@@ -8,12 +8,13 @@ namespace FurniMove.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public int price { get; set; }
-        public MoveRequest? moveRequest { get; set; }
-        [ForeignKey("moveRequest")]
-        public int? moveRequestId { get; set; }
-        public AppUser? serviceProvider { get; set; }
-        [ForeignKey("serviceProvider")]
-        public string? serviceProviderId { get; set; }
+        public int Price { get; set; }
+        public MoveRequest? MoveRequest { get; set; }
+        [ForeignKey("MoveRequest")]
+        public int? MoveRequestId { get; set; }
+        public AppUser? ServiceProvider { get; set; }
+        [ForeignKey("ServiceProvider")]
+        public string? ServiceProviderId { get; set; }
+        public bool Accepted { get; set; } = false;
     }
 }

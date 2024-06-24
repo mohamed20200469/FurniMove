@@ -5,16 +5,14 @@ namespace FurniMove.DTOs
     public class TruckWriteDTO
     {
         [Required]
-        public string? plateNumber { get; set; }
+        public string? PlateNumber { get; set; }
         [Required]
-        public string? brand { get; set; }
+        public string? Brand { get; set; }
         [Required]
-        public string? model { get; set; }
+        public string? Model { get; set; }
         [Required]
-        public int? year { get; set; }
+        public int? Year { get; set; }
         [Required]
-        public int capacity { get; set; }
-        [Required]
-        public double ConsumptionRate { get; set; }
+        public string? Type { get; set; }
     }
 }

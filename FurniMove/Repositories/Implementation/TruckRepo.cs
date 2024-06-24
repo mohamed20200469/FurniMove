@@ -51,11 +51,30 @@ namespace FurniMove.Repositories.Implementation
             return await Save();
         }
 
-        public async Task<bool> CheckAvailable(string ServiceProviderId, string VehicleType)
+        public async Task<bool> CheckAvailable(string ServiceProviderId, string VehicleType, DateOnly date)
         {
-            if(await _db.Trucks.AnyAsync(x => x.ServiceProviderId == ServiceProviderId &&
-            x.Type == VehicleType && x.status == "Available")) return true;
+            var truck = await _db.Trucks.FirstOrDefaultAsync(x => x.ServiceProviderId == ServiceProviderId &&
+            x.Type == VehicleType);
+
+            
+            if (truck != null)
+            {
+                var check = await _db.MoveRequests.FirstOrDefaultAsync(y => y.serviceProviderId == ServiceProviderId &&
+                y.startDate == date);
+
+                if (check != null)
+                {
+                    return false;
+                }
+                return true;
+            }
             return false;
+        }
+
+        public async Task<Truck?> GetTuckBySP(string ServiceProviderId)
+        {
+            var truck = await _db.Trucks.FirstOrDefaultAsync(x => x.ServiceProviderId == ServiceProviderId);
+            return truck;
         }
     }
 }

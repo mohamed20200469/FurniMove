@@ -10,10 +10,11 @@ namespace FurniMove.Mapper
             return new MoveOfferReadDTO
             {
                 Id = moveOffer.Id,
-                ServiceProviderId = moveOffer.serviceProviderId,
+                ServiceProviderId = moveOffer.ServiceProviderId,
                 ServiceProvider = serviceProviderDTO,
-                Price = moveOffer.price,
-                MoveRequestId = moveOffer.moveRequestId
+                Price = moveOffer.Price,
+                MoveRequestId = moveOffer.MoveRequestId,
+                Accepted = moveOffer.Accepted,
             };
         }
     }

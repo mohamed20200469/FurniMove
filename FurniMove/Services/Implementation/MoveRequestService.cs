@@ -33,7 +33,7 @@ namespace FurniMove.Services.Implementation
             var moveRequest = moveRequestDTO.ToMoveRequest();
             moveRequest.customerId = userId;
             var customer = await _userManager.FindByIdAsync(moveRequest.customerId!);
-            var customerDTO = _mapper.Map<UserDTO>(customer);
+            var customerDTO = _mapper.Map<UserDTO>(customer);            
             moveRequest.status = "Created";
             var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId!);
             var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId!);
@@ -47,7 +47,7 @@ namespace FurniMove.Services.Implementation
             }
             else return null;
             var result = await _moveRequestRepo.CreateMoveRequestAsync(moveRequest);
-            if (result) return moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO);
+            if (result) return moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
             else return null;
         }
 
@@ -61,8 +61,18 @@ namespace FurniMove.Services.Implementation
             var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId!);
             var customer = await _userManager.FindByIdAsync(moveRequest.customerId!);
             var customerDTO = _mapper.Map<UserDTO>(customer);
+            var moveRequestDTO = new MoveRequestReadDTO();
 
-            var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO);
+            if (moveRequest.serviceProviderId != null)
+            {
+                var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
+                var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
+                moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+            } else
+            {
+                moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+            }
+
             return moveRequestDTO;
         }
 
@@ -85,9 +95,18 @@ namespace FurniMove.Services.Implementation
                 var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
                 var customerDTO = _mapper.Map<UserDTO>(customer);
 
-                var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO);
-
-                moveRequestDTOs.Add(moveRequestDTO);
+                if (moveRequest.serviceProviderId != null)
+                {
+                    var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
+                    var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+                    moveRequestDTOs.Add(moveRequestDTO);
+                }
+                else
+                {
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+                    moveRequestDTOs.Add(moveRequestDTO);
+                }
             }
             return moveRequestDTOs;
         }
@@ -105,11 +124,50 @@ namespace FurniMove.Services.Implementation
                 var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
                 var customerDTO = _mapper.Map<UserDTO>(customer);
 
-                var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO);
+                if (moveRequest.serviceProviderId != null)
+                {
+                    var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
+                    var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+                    moveRequestDTOs.Add(moveRequestDTO);
+                }
+                else
+                {
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+                    moveRequestDTOs.Add(moveRequestDTO);
+                }
 
-                moveRequestDTOs.Add(moveRequestDTO);
             }
 
+            return moveRequestDTOs;
+        }
+
+        public async Task<List<MoveRequestReadDTO>> GetMoveRequestsByServiceProvider(string serviceProviderId)
+        {
+            var moveRequests = await _moveRequestRepo.GetMoveRequestsByServiceProvider(serviceProviderId);
+
+            var moveRequestDTOs = new List<MoveRequestReadDTO>();
+
+            foreach (var moveRequest in moveRequests)
+            {
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var customerDTO = _mapper.Map<UserDTO>(customer);
+
+                if (moveRequest.serviceProviderId != null)
+                {
+                    var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
+                    var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+                    moveRequestDTOs.Add(moveRequestDTO);
+                }
+                else
+                {
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+                    moveRequestDTOs.Add(moveRequestDTO);
+                }
+            }
             return moveRequestDTOs;
         }
     }

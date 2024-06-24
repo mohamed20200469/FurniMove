@@ -10,6 +10,6 @@ namespace FurniMove.Services.Abstract
         public Task<List<MoveRequestReadDTO>> GetAllMoveRequests();
         public Task<MoveRequestReadDTO?> GetMoveRequestById(int id);
         public Task<MoveRequest?> GetMoveRequestByUserId(string userId);
-
+        public Task<List<MoveRequestReadDTO>> GetMoveRequestsByServiceProvider(string serviceProviderId);
     }
 }

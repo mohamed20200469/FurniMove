@@ -10,8 +10,10 @@ namespace FurniMove.DTOs
         public Location? EndLocation { get; set; }
         public string? CustomerId { get; set; }
         public UserDTO? Customer { get; set; }
+        public string? ServiceProviderId {  get; set; }
+        public UserDTO? ServiceProvider { get; set; }
         public string? Status { get; set; }
-        public DateTime? StartTime { get; set; }
+        public DateOnly StartDate { get; set; }
         public DateTime? EndTime { get; set; }
         public int? Rating { get; set; }
         public double? Cost { get; set; }

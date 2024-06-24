@@ -16,7 +16,7 @@ namespace FurniMove.Repositories.Implementation
 
         public async Task<bool> CreateMoveOffer(MoveOffer moveOffer)
         {
-            var moveRequest = await _db.MoveRequests.FirstOrDefaultAsync(x => x.Id == moveOffer.moveRequestId);
+            var moveRequest = await _db.MoveRequests.FirstOrDefaultAsync(x => x.Id == moveOffer.MoveRequestId);
             if (moveRequest != null)
             {
                 await _db.MoveOffers.AddAsync(moveOffer);
@@ -44,7 +44,7 @@ namespace FurniMove.Repositories.Implementation
             var request = await _db.MoveRequests.FirstOrDefaultAsync(o => o.Id == id);
             if (request != null)
             {
-                var offers = await _db.MoveOffers.Where(x => x.moveRequestId == id).ToListAsync();
+                var offers = await _db.MoveOffers.Where(x => x.MoveRequestId == id).ToListAsync();
                 return offers;
             }
             return null;
@@ -67,5 +67,10 @@ namespace FurniMove.Repositories.Implementation
             return await Save();
         }
 
+        public async Task<List<MoveOffer>> GetAllMoveOffersByServiceProvider(string serviceProviderId)
+        {
+            var offers = await _db.MoveOffers.Where(x => x.ServiceProviderId == serviceProviderId).ToListAsync();
+            return offers;
+        }
     }
 }

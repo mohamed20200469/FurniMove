@@ -11,22 +11,16 @@ namespace FurniMove.Models
         [ForeignKey("ServiceProvider")]
         public string? ServiceProviderId { get; set; }
         [Required]
-        public string plateNumber { get; set; }
+        public string? PlateNumber { get; set; }
         [Required]
-        public string brand { get; set; }
+        public string? Brand { get; set; }
         [Required]
-        public string model { get; set; }
+        public string? Model { get; set; }
         [Required]
-        public int year { get; set; }
-        [Required]
-        public int capacity { get; set; }
-        [Required]
-        public string status { get; set; } = "Available";
-        [Required]
-        public double consumptionRate { get; set; }
-        public Location? currentLocation { get; set; }
+        public int Year { get; set; }
+        public Location? CurrentLocation { get; set; }
         [ForeignKey("currentLocation")]
-        public int? currentLocationId { get; set; }
+        public int? CurrentLocationId { get; set; }
         [Required]
         public string? Type { get; set; }
     }

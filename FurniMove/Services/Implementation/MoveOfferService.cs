@@ -38,7 +38,7 @@ namespace FurniMove.Services.Implementation
 
             foreach (var moveOffer in moveOffers)
             {
-                var serviceProvider = await _userManager.FindByIdAsync(moveOffer.serviceProviderId);
+                var serviceProvider = await _userManager.FindByIdAsync(moveOffer.ServiceProviderId);
                 var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
 
                 var moveOfferDTO = moveOffer.ToMoveOfferDTO(serviceProviderDTO);
@@ -51,6 +51,24 @@ namespace FurniMove.Services.Implementation
         public async Task<MoveOffer?> GetMoveOfferById(int id)
         {
             return await _moveOfferRepo.GetMoveOfferById(id);
+        }
+
+        public async Task<List<MoveOfferReadDTO>> GetAllMoveOffersByServiceProvider(string serviceProviderId)
+        {
+            var moveOffers = await _moveOfferRepo.GetAllMoveOffersByServiceProvider(serviceProviderId);
+
+            var moveOfferDTOs = new List<MoveOfferReadDTO>();
+
+            foreach (var moveOffer in moveOffers)
+            {
+                var serviceProvider = await _userManager.FindByIdAsync(moveOffer.ServiceProviderId);
+                var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
+
+                var moveOfferDTO = moveOffer.ToMoveOfferDTO(serviceProviderDTO);
+
+                moveOfferDTOs.Add(moveOfferDTO);
+            }
+            return moveOfferDTOs;
         }
     }
 }

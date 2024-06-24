@@ -6,7 +6,7 @@ namespace FurniMove.Mapper
     public static class MoveRequestMappers
     {
         public static MoveRequestReadDTO ToMoveRequestDTO(this MoveRequest moveRequest, Location startLocation,
-            Location endLocation, UserDTO customerDTO)
+            Location endLocation, UserDTO customerDTO, UserDTO serviceProviderDTO)
         {
             return new MoveRequestReadDTO
             {
@@ -19,8 +19,10 @@ namespace FurniMove.Mapper
                 Distance = moveRequest.Distance,
                 CustomerId = moveRequest.customerId,
                 Customer = customerDTO,
+                ServiceProviderId = moveRequest.serviceProviderId,
+                ServiceProvider = serviceProviderDTO,
                 Status = moveRequest.status,
-                StartTime = moveRequest.startTime,
+                StartDate = moveRequest.startDate,
                 EndTime = moveRequest.endTime,
                 VehicleType = moveRequest.VehicleType,
                 Rating = moveRequest.rating,
@@ -36,7 +38,7 @@ namespace FurniMove.Mapper
                 startLocationId = dto.startLocationId,
                 endLocationId = dto.endLocationId,
                 numOfAppliances = dto.numOfAppliances,
-                startTime = dto.DateTime,
+                startDate = dto.StartDate,
                 VehicleType = dto.VehicleType
             };
         }

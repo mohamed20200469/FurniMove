@@ -34,12 +34,14 @@ namespace FurniMove.Controllers
         public async Task<IActionResult> CreateMoveOffer(MoveOfferWriteDTO moveOfferDTO)
         {
             var moveOffer = _mapper.Map<MoveOffer>(moveOfferDTO);
-            moveOffer.serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            moveOffer.ServiceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var moveRequest = await _moveRequestService.GetMoveRequestById(moveOfferDTO.moveRequestId);
 
-            if (!await _truckService.CheckAvailable(moveOffer.serviceProviderId!, moveRequest!.VehicleType!))
+            if (!await _truckService.CheckAvailable(moveOffer.ServiceProviderId!, moveRequest!.VehicleType!, moveRequest.StartDate))
+            {
                 return BadRequest("No suitable truck available!");
+            }
 
             bool result = await _moveOfferService.CreateMoveOffer(moveOffer);
             if (result)
@@ -62,10 +64,10 @@ namespace FurniMove.Controllers
         {
             if (!ModelState.IsValid) return BadRequest();
 
-            if (truckWriteDTO.year > 1980 && truckWriteDTO.year < 2024)
+            if (truckWriteDTO.Year > 1980 && truckWriteDTO.Year < 2024)
+            if (truckWriteDTO.Year > 1980 && truckWriteDTO.Year < 2024)
             {
                 var Truck = _mapper.Map<Truck>(truckWriteDTO);
-                Truck.status = "available";
                 Truck.ServiceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 bool result = await _truckService.CreateTruck(Truck);
                 if (result)
@@ -78,11 +80,33 @@ namespace FurniMove.Controllers
         }
 
 
-        [HttpGet("GetMoveRequests")]
-        public async Task<IActionResult> GetCreatedMoveRequests()
+        [HttpGet("GetCreatedMoveRequests")]
+        public async Task<IActionResult> GetAllCreatedMoveRequests()
         {
             var moveRequests = await _moveRequestService.GetMoveRequestsByStatus("Created");
             return Ok(moveRequests);
+        }
+
+        [HttpGet("GetAllMovesByServiceProvider")]
+        public async Task<IActionResult> GetAllMovesByServiceProvider()
+        {
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok(await _moveRequestService.GetMoveRequestsByServiceProvider(serviceProviderId));
+        }
+
+        [HttpGet("GetAllMoveOffersByServiceProvider")]
+        public async Task<IActionResult> GetAllMoveOffersByServiceProvider()
+        {
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok(await _moveOfferService.GetAllMoveOffersByServiceProvider(serviceProviderId));
+        }
+
+        [HttpPost("AddTruckLocation")]
+        public async Task<IActionResult> AddTruckLocation(LocationWriteDTO locationDTO)
+        {
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var location = await _truckService.UpdateOrAddTruckLocation(serviceProviderId, locationDTO);
+            return Ok(location);
         }
     }
 }

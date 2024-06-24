@@ -41,6 +41,12 @@ namespace FurniMove.Repositories.Implementation
             return list;
         }
 
+        public async Task<List<MoveRequest>> GetMoveRequestsByServiceProvider(string serviceProviderId)
+        {
+            var list = await _db.MoveRequests.Where(x => x.serviceProviderId == serviceProviderId).ToListAsync();
+            return list;
+        }
+
         public async Task<bool> SaveAsync()
         {
             var saved = await _db.SaveChangesAsync();

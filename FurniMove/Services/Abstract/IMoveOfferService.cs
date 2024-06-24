@@ -8,6 +8,7 @@ namespace FurniMove.Services.Abstract
         public Task<bool> CreateMoveOffer(MoveOffer moveOffer);
         public Task<List<MoveOffer>> GetAllMoveOffers();
         public Task<List<MoveOfferReadDTO>?> GetAllMoveOffersByRequestId(int id);
+        Task<List<MoveOfferReadDTO>> GetAllMoveOffersByServiceProvider(string serviceProviderId);
         public Task<MoveOffer?> GetMoveOfferById(int id);
     }
 }

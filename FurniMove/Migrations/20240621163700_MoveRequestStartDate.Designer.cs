@@ -4,6 +4,7 @@ using FurniMove.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FurniMove.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240621163700_MoveRequestStartDate")]
+    partial class MoveRequestStartDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -160,23 +163,20 @@ namespace FurniMove.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("Accepted")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("MoveRequestId")
+                    b.Property<int?>("moveRequestId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Price")
+                    b.Property<int>("price")
                         .HasColumnType("int");
 
-                    b.Property<string>("ServiceProviderId")
+                    b.Property<string>("serviceProviderId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MoveRequestId");
+                    b.HasIndex("moveRequestId");
 
-                    b.HasIndex("ServiceProviderId");
+                    b.HasIndex("serviceProviderId");
 
                     b.ToTable("MoveOffers");
                 });
@@ -262,21 +262,6 @@ namespace FurniMove.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("CurrentLocationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PlateNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ServiceProviderId")
                         .HasColumnType("nvarchar(450)");
 
@@ -284,14 +269,35 @@ namespace FurniMove.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Year")
+                    b.Property<string>("brand")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("capacity")
+                        .HasColumnType("int");
+
+                    b.Property<double>("consumptionRate")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("currentLocationId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("model")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("plateNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CurrentLocationId");
-
                     b.HasIndex("ServiceProviderId");
+
+                    b.HasIndex("currentLocationId");
 
                     b.ToTable("Trucks");
                 });
@@ -460,17 +466,17 @@ namespace FurniMove.Migrations
 
             modelBuilder.Entity("FurniMove.Models.MoveOffer", b =>
                 {
-                    b.HasOne("FurniMove.Models.MoveRequest", "MoveRequest")
+                    b.HasOne("FurniMove.Models.MoveRequest", "moveRequest")
                         .WithMany()
-                        .HasForeignKey("MoveRequestId");
+                        .HasForeignKey("moveRequestId");
 
-                    b.HasOne("FurniMove.Models.AppUser", "ServiceProvider")
+                    b.HasOne("FurniMove.Models.AppUser", "serviceProvider")
                         .WithMany()
-                        .HasForeignKey("ServiceProviderId");
+                        .HasForeignKey("serviceProviderId");
 
-                    b.Navigation("MoveRequest");
+                    b.Navigation("moveRequest");
 
-                    b.Navigation("ServiceProvider");
+                    b.Navigation("serviceProvider");
                 });
 
             modelBuilder.Entity("FurniMove.Models.MoveRequest", b =>
@@ -508,17 +514,17 @@ namespace FurniMove.Migrations
 
             modelBuilder.Entity("FurniMove.Models.Truck", b =>
                 {
-                    b.HasOne("FurniMove.Models.Location", "CurrentLocation")
-                        .WithMany()
-                        .HasForeignKey("CurrentLocationId");
-
                     b.HasOne("FurniMove.Models.AppUser", "ServiceProvider")
                         .WithMany()
                         .HasForeignKey("ServiceProviderId");
 
-                    b.Navigation("CurrentLocation");
+                    b.HasOne("FurniMove.Models.Location", "currentLocation")
+                        .WithMany()
+                        .HasForeignKey("currentLocationId");
 
                     b.Navigation("ServiceProvider");
+
+                    b.Navigation("currentLocation");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
