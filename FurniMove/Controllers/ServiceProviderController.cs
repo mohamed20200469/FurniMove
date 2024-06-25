@@ -101,12 +101,32 @@ namespace FurniMove.Controllers
             return Ok(await _moveOfferService.GetAllMoveOffersByServiceProvider(serviceProviderId));
         }
 
-        [HttpPost("AddTruckLocation")]
+        [HttpPost("UpdateTruckLocation")]
         public async Task<IActionResult> AddTruckLocation(LocationWriteDTO locationDTO)
         {
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var location = await _truckService.UpdateOrAddTruckLocation(serviceProviderId, locationDTO);
             return Ok(location);
+        }
+
+        [HttpPut("StartMove")]
+        public async Task<IActionResult> StartMove()
+        {
+            return Ok();
+        }
+
+        [HttpPut("EndMove")]
+        public async Task<IActionResult> EndMove()
+        {
+            return Ok();
+        }
+
+        [HttpDelete("DeleteOffer")]
+        public async Task<IActionResult> DeleteOffer(int OfferId)
+        {
+            var result = await _moveOfferService.DeleteMoveOfferById(OfferId);
+            if(result) return Ok("Offer deleted successfully!");
+            return Ok("Offer doesn't exist or is already Accepted!");
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FurniMove.Data;
 using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
+using Microsoft.EntityFrameworkCore;
 
 namespace FurniMove.Repositories.Implementation
 {
@@ -12,44 +13,44 @@ namespace FurniMove.Repositories.Implementation
             _db = db;
         }
 
-        public bool CreateAppliance(Appliance appliance)
+        public async Task<bool> CreateAppliance(Appliance appliance)
         {
-            _db.Appliances.Add(appliance);
-            return Save();
+            await _db.Appliances.AddAsync(appliance);
+            return await Save();
         }
 
-        public bool DeleteAppliancebyId(int applianceId)
+        public async Task<bool> DeleteAppliancebyId(int applianceId)
         {
-            var appliance = _db.Appliances.FirstOrDefault(p => p.Id == applianceId);
+            var appliance = await _db.Appliances.FirstOrDefaultAsync(p => p.Id == applianceId);
             if (appliance == null)
             {
                 return false;
             }
             _db.Appliances.Remove(appliance);
-            return Save();
+            return await Save();
         }
 
-        public ICollection<Appliance> GetAllAppliancesBy()
+        public async Task<List<Appliance>> GetAllAppliancesBy()
         {
-            return _db.Appliances.ToList();
+            return await _db.Appliances.ToListAsync();
         }
 
-        public Appliance? GetApplianceById(int applianceId)
+        public async Task<Appliance?> GetApplianceById(int applianceId)
         {
-            var appliance = _db.Appliances.FirstOrDefault(_ => _.Id == applianceId);
+            var appliance = await _db.Appliances.FirstOrDefaultAsync(_ => _.Id == applianceId);
             return appliance;
         }
 
-        public bool Save()
+        public async Task<bool> Save()
         {
-            var saved = _db.SaveChanges();
+            var saved = await _db.SaveChangesAsync();
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateAppliance(Appliance appliance)
+        public async Task<bool> UpdateAppliance(Appliance appliance)
         {
             _db.Update(appliance);
-            return Save();
+            return await Save();
         }
     }
 }

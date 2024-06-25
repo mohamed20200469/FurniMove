@@ -70,5 +70,16 @@ namespace FurniMove.Services.Implementation
             }
             return moveOfferDTOs;
         }
+
+        public async Task<bool> DeleteMoveOfferById(int Id)
+        {
+            var offer = await _moveOfferRepo.GetMoveOfferById(Id);
+            if (offer == null || offer.Accepted == true)
+            {
+                return false;
+            }
+            var result = await _moveOfferRepo.DeleteMoveOfferById(Id);
+            return result;
+        }
     }
 }

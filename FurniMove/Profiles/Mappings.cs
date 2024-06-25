@@ -12,6 +12,7 @@ namespace FurniMove.Profiles
             CreateMap<AppUser, UserDTO>();
             CreateMap<LocationWriteDTO, Location>();
             CreateMap<TruckWriteDTO, Truck>();
+            CreateMap<Appliance, ApplianceReadDTO>();
         }
     }
 }

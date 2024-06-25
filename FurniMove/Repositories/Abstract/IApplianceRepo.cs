@@ -4,11 +4,11 @@ namespace FurniMove.Repositories.Abstract
 {
     public interface IApplianceRepo
     {
-        public Appliance? GetApplianceById(int applianceId);
-        public ICollection<Appliance> GetAllAppliancesBy();
-        public bool CreateAppliance(Appliance appliance);
-        public bool UpdateAppliance(Appliance appliance);
-        public bool DeleteAppliancebyId(int applianceId);
-        bool Save();
+        public Task<Appliance?> GetApplianceById(int applianceId);
+        public Task<List<Appliance>> GetAllAppliancesBy();
+        public Task<bool> CreateAppliance(Appliance appliance);
+        public Task<bool> UpdateAppliance(Appliance appliance);
+        public Task<bool> DeleteAppliancebyId(int applianceId);
+        public Task<bool> Save();
     }
 }

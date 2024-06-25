@@ -20,11 +20,13 @@ namespace FurniMove.Controllers
         private readonly IMoveOfferService _moveOfferService;
         private readonly ILocationService _locationService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IApplianceService _applianceService;
         private readonly IMapService _mapService;
 
         public CustomerController(IMapper mapper, IMoveRequestService moveRequestService, 
             IHttpContextAccessor httpContextAccessor, IMoveOfferService moveOfferService,
-            ILocationService locationService, UserManager<AppUser> userManager, IMapService mapService) 
+            ILocationService locationService, UserManager<AppUser> userManager,
+            IMapService mapService, IApplianceService applianceService) 
         {
             _mapper = mapper;
             _moveRequestService = moveRequestService;
@@ -32,6 +34,7 @@ namespace FurniMove.Controllers
             _moveOfferService = moveOfferService;
             _locationService = locationService;
             _userManager = userManager;
+            _applianceService = applianceService;
             _mapService = mapService;
         }
 
@@ -100,6 +103,17 @@ namespace FurniMove.Controllers
                 return Ok(await _moveOfferService.GetAllMoveOffersByRequestId(request.Id));
             }
             return NotFound();
+        }
+
+        [HttpPost("AddAppliance")]
+        public async Task<IActionResult> AddAppliance(ApplianceWriteDTO dto)
+        {
+            var applianceReadDTO = await _applianceService.CreateAppliance(dto, $"{Request.Scheme}://{Request.Host}/Uploads/{dto.moveRequestId}");
+            if (applianceReadDTO != null)
+            {
+                return Ok(applianceReadDTO);
+            }
+            return Ok("No MoveRequest found!");
         }
     }
 }
