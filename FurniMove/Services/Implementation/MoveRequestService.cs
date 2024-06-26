@@ -170,5 +170,17 @@ namespace FurniMove.Services.Implementation
             }
             return moveRequestDTOs;
         }
+
+        public async Task<bool> RateMove(int MoveId, int Rate)
+        {
+            var move = await _moveRequestRepo.GetMoveRequestByIdAsync(MoveId);
+            if (move == null)
+            {
+                return false;
+            }
+            move.rating = Rate;
+            var result = await _moveRequestRepo.UpdateMoveRequestAsync(move);
+            return result;
+        }
     }
 }

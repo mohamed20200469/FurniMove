@@ -41,9 +41,19 @@ namespace FurniMove.Services.Implementation
             return await _truckRepo.GetTruckById(truckId);
         }
 
-        public async Task<bool> UpdateTruck(Truck truck)
+        public async Task<bool> UpdateTruck(TruckWriteDTO truckDTO, string ServiceProviderId)
         {
-            return await _truckRepo.CreateTruck(truck);
+            var truck = await _truckRepo.GetTuckBySP(ServiceProviderId);
+            if (truck == null) return false;
+
+            truck.Brand = truckDTO.Brand;
+            truck.Year = (int)truckDTO.Year;
+            truck.PlateNumber = truckDTO.PlateNumber;
+            truck.Model = truckDTO.Model;
+            truck.Type = truckDTO.Type;
+            
+            var result = await _truckRepo.UpdateTruck(truck);
+            return result;
         }
 
         public async Task<bool> CheckAvailable(string serviceProviderId, string VehicleType, DateOnly date)
@@ -74,6 +84,14 @@ namespace FurniMove.Services.Implementation
             truck.CurrentLocationId = location2.Id;
             var result3 = await _truckRepo.UpdateTruck(truck);
             return location2;
+        }
+
+        public async Task<Location?> GetTruckLocation(int Id)
+        {
+            var truck = await _truckRepo.GetTruckById(Id);
+            if (truck == null || truck.CurrentLocationId == null) return null;
+            var location = await _locationService.GetLocationById((int)truck.CurrentLocationId);
+            return location;
         }
     }
 }

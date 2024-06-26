@@ -22,11 +22,12 @@ namespace FurniMove.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IApplianceService _applianceService;
         private readonly IMapService _mapService;
+        private readonly ITruckService _truckService;
 
         public CustomerController(IMapper mapper, IMoveRequestService moveRequestService, 
             IHttpContextAccessor httpContextAccessor, IMoveOfferService moveOfferService,
             ILocationService locationService, UserManager<AppUser> userManager,
-            IMapService mapService, IApplianceService applianceService) 
+            IMapService mapService, IApplianceService applianceService, ITruckService truckService) 
         {
             _mapper = mapper;
             _moveRequestService = moveRequestService;
@@ -36,6 +37,7 @@ namespace FurniMove.Controllers
             _userManager = userManager;
             _applianceService = applianceService;
             _mapService = mapService;
+            _truckService = truckService;
         }
 
         [HttpPost("CreateLocation")]
@@ -114,6 +116,25 @@ namespace FurniMove.Controllers
                 return Ok(applianceReadDTO);
             }
             return Ok("No MoveRequest found!");
+        }
+
+        [HttpGet("GetTruckLocation")]
+        public async Task<IActionResult> GetTruckLocation(int Id)
+        {
+            var location = await _truckService.GetTruckLocation(Id);
+            if (location != null)
+            {
+                return Ok(location);
+            }
+            return NotFound("Truck cannot be located!");
+        }
+
+        [HttpPut("RateMove")]
+        public async Task<IActionResult> RateMove(int MoveId, int Rate)
+        {
+            var result = await _moveRequestService.RateMove(MoveId, Rate);
+            if (result) return Ok();
+            return NotFound();
         }
     }
 }

@@ -128,5 +128,16 @@ namespace FurniMove.Controllers
             if(result) return Ok("Offer deleted successfully!");
             return Ok("Offer doesn't exist or is already Accepted!");
         }
+
+        [HttpPatch("UpdateTruck")]
+        public async Task<IActionResult> UpdateTruck(TruckWriteDTO truck)
+        {
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            
+            var result = await _truckService.UpdateTruck(truck, serviceProviderId);
+
+            if (result) return Ok(truck);
+            return NotFound();
+        }
     }
 }
