@@ -18,16 +18,18 @@ namespace FurniMove.Controllers
         private readonly IHttpContextAccessor _http;
         private readonly ITruckService _truckService;
         private readonly IMoveRequestService _moveRequestService;
+        private readonly IApplianceService _applianceService;
 
         public ServiceProviderController(IMoveOfferService moveOfferService,
             IMapper mapper, IHttpContextAccessor httpContextAccessor, ITruckService truckService,
-            IMoveRequestService moveRequestService)
+            IMoveRequestService moveRequestService, IApplianceService applianceService)
         {
             _moveOfferService = moveOfferService;
             _mapper = mapper;
             _http = httpContextAccessor;
             _truckService = truckService;
             _moveRequestService = moveRequestService;
+            _applianceService = applianceService;
         }
 
         [HttpPost("CreateMoveOffer")]
@@ -138,6 +140,19 @@ namespace FurniMove.Controllers
 
             if (result) return Ok(truck);
             return NotFound();
+        }
+
+        [HttpGet("GetAppliancesByMove")]
+        public async Task<IActionResult> GetAppliancesByMove(int moveId)
+        {
+            try
+            {
+                var appliances = await _applianceService.GetAllAppliancesByMove(moveId);
+                return Ok(appliances);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

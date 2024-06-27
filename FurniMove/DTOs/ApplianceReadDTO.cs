@@ -10,5 +10,6 @@ namespace FurniMove.DTOs
         public string? description { get; set; }
         public int? moveRequestId { get; set; }
         public string? ImgURL { get; set; }
+        public List<string> Tags { get; set; } = new List<string>();
     }
 }

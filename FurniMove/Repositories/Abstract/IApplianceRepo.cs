@@ -10,5 +10,7 @@ namespace FurniMove.Repositories.Abstract
         public Task<bool> UpdateAppliance(Appliance appliance);
         public Task<bool> DeleteAppliancebyId(int applianceId);
         public Task<bool> Save();
+        Task<bool> AddTagsToAppliance(int applianceId, List<string> tags);
+        Task<List<Appliance>> GetAppliancesByMove(int moveId);
     }
 }

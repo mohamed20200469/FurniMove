@@ -136,5 +136,13 @@ namespace FurniMove.Controllers
             if (result) return Ok();
             return NotFound();
         }
+
+        //[HttpPut("AddApplianceTags")]
+        //public async Task<IActionResult> AddTags(int Id, [FromBody] List<string> tags)
+        //{
+        //    var result = await _applianceService.AddTagsToAppliance(Id, tags);
+        //    if (result) return Ok();
+        //    return NotFound();
+        //}
     }
 }

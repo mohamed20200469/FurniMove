@@ -43,5 +43,20 @@ namespace FurniMove.Services.Implementation
             }
             return null;
         }
+
+        public async Task<bool> AddTagsToAppliance(int applianceId, List<string> tags)
+        {
+            var result = await _applianceRepo.AddTagsToAppliance(applianceId, tags);
+
+            return result;
+        }
+
+        public async Task<List<ApplianceReadDTO>> GetAllAppliancesByMove(int moveId)
+        {
+            var appliances = await _applianceRepo.GetAppliancesByMove(moveId);
+            var appliancesDTO = _mapper.Map<List<ApplianceReadDTO>>(appliances);
+
+            return appliancesDTO;
+        }
     }
 }

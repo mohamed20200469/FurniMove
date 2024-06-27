@@ -49,8 +49,24 @@ namespace FurniMove.Repositories.Implementation
 
         public async Task<bool> UpdateAppliance(Appliance appliance)
         {
-            _db.Update(appliance);
+            _db.Appliances.Update(appliance);
             return await Save();
+        }
+        public async Task<bool> AddTagsToAppliance(int applianceId, List<string> tags)
+        {
+            var appliance = await _db.Appliances.FindAsync(applianceId);
+            if (appliance == null) { return false; }
+
+            appliance.Tags.AddRange(tags);
+            appliance.Tags = appliance.Tags.Distinct().ToList();
+
+            return await Save();
+        }
+
+        public async Task<List<Appliance>> GetAppliancesByMove(int moveId)
+        {
+            var appliances = await _db.Appliances.Where(x => x.moveRequestId == moveId).ToListAsync();
+            return appliances;
         }
     }
 }

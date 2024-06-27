@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace FurniMove.Data
 {
@@ -36,6 +37,13 @@ namespace FurniMove.Data
                 }
             };
             builder.Entity<IdentityRole>().HasData(roles);
+
+            builder.Entity<Appliance>()
+            .Property(e => e.Tags)
+            .HasConversion(
+                v => string.Join(',', v), // Convert list to string
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()); // Convert string to list
+
         }
         public DbSet<MoveRequest> MoveRequests { get; set; }
         public DbSet<Truck> Trucks { get; set; }
