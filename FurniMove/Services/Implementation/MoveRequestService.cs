@@ -226,6 +226,7 @@ namespace FurniMove.Services.Implementation
                 return false;
             }
             move.status = "Completed";
+            move.endTime = utcPlus3Now;
             var result = await _moveRequestRepo.UpdateMoveRequestAsync(move);
             return result;
         }
