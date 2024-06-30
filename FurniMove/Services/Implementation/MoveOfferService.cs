@@ -13,12 +13,18 @@ namespace FurniMove.Services.Implementation
         private readonly IMapper _mapper;
         private readonly UserManager<AppUser> _userManager;
         private readonly IMoveOfferRepo _moveOfferRepo;
+        private readonly IMoveRequestService _moveRequestService;
+        private readonly ITruckService _truckService;
+
         public MoveOfferService(IMoveOfferRepo moveOfferRepo, IMapper mapper, 
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager, IMoveRequestService moveRequestService,
+            ITruckService truckService)
         {
             _mapper = mapper;
             _userManager = userManager;
             _moveOfferRepo = moveOfferRepo;
+            _moveRequestService = moveRequestService;
+            _truckService = truckService;
         }
         public async Task<bool> CreateMoveOffer(MoveOffer moveOffer)
         {
@@ -80,6 +86,30 @@ namespace FurniMove.Services.Implementation
             }
             var result = await _moveOfferRepo.DeleteMoveOfferById(Id);
             return result;
+        }
+        public async Task<bool> AcceptMoveOffer(int offerId)
+        {
+            var moveOffer = await _moveOfferRepo.GetMoveOfferById(offerId);
+
+            var moveRequest = await _moveRequestService.GetMoveRequest((int)moveOffer!.MoveRequestId!);
+
+            var truck = await _truckService.GetTruckBySP(moveOffer.ServiceProviderId!);
+
+            moveRequest!.status = "Waiting";
+            moveRequest.cost = moveOffer.Price;
+            moveRequest.serviceProviderId = moveOffer.ServiceProviderId;
+            moveRequest.truckId = truck!.Id;
+
+            moveOffer.Accepted = true;
+
+            var result1 = await _moveOfferRepo.UpdateMoveOffer(moveOffer);
+            var result2 = await _moveRequestService.UpdateMoveRequest(moveRequest);
+            if (result1 && result2)
+            {
+                await _moveOfferRepo.DeleteNonAcceptedOffers(moveRequest.Id);
+                return true;
+            }
+            return false;
         }
     }
 }

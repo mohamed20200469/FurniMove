@@ -26,6 +26,12 @@ namespace FurniMove.Services.Implementation
             _mapService = mapService;
         }
 
+        public async Task<MoveRequest> GetMoveRequest(int Id)
+        {
+            var moveRequest = await _moveRequestRepo.GetMoveRequestByIdAsync(Id);
+            return moveRequest;
+        }
+
         public async Task<MoveRequestReadDTO?> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO, string userId)
         {
             var request = await _moveRequestRepo.GetUserCreatedRequest(userId);
@@ -51,7 +57,7 @@ namespace FurniMove.Services.Implementation
             else return null;
         }
 
-        public async Task<MoveRequestReadDTO?> GetMoveRequestById(int id)
+        public async Task<MoveRequestReadDTO?> GetMoveRequestDTOById(int id)
         {
             var moveRequest = await _moveRequestRepo.GetMoveRequestByIdAsync(id);
 
@@ -180,6 +186,12 @@ namespace FurniMove.Services.Implementation
             }
             move.rating = Rate;
             var result = await _moveRequestRepo.UpdateMoveRequestAsync(move);
+            return result;
+        }
+
+        public async Task<bool> UpdateMoveRequest(MoveRequest moveRequest)
+        {
+            var result = await _moveRequestRepo.UpdateMoveRequestAsync(moveRequest); 
             return result;
         }
     }

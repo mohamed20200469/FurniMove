@@ -144,5 +144,13 @@ namespace FurniMove.Controllers
         //    if (result) return Ok();
         //    return NotFound();
         //}
+
+        [HttpPut("AcceptMoveOffer")]
+        public async Task<IActionResult> AcceptOffer(int Id)
+        {
+            var result = await _moveOfferService.AcceptMoveOffer(Id);
+            if (result) return Ok();
+            return NotFound();
+        }
     }
 }

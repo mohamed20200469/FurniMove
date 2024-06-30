@@ -63,7 +63,7 @@ namespace FurniMove.Repositories.Implementation
 
         public async Task<bool> UpdateMoveOffer(MoveOffer moveOffer)
         {
-            await _db.MoveOffers.AddAsync(moveOffer);
+            _db.MoveOffers.Update(moveOffer);
             return await Save();
         }
 
@@ -71,6 +71,17 @@ namespace FurniMove.Repositories.Implementation
         {
             var offers = await _db.MoveOffers.Where(x => x.ServiceProviderId == serviceProviderId).ToListAsync();
             return offers;
+        }
+
+        public async Task DeleteNonAcceptedOffers(int moveId)
+        {
+            var offers = await _db.MoveOffers.Where(x => x.MoveRequestId == moveId && x.Accepted == false).ToListAsync();
+
+            foreach (var item in offers)
+            {
+                _db.Remove(item);
+            }
+            await _db.SaveChangesAsync();
         }
     }
 }

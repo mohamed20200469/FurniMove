@@ -38,7 +38,7 @@ namespace FurniMove.Controllers
             var moveOffer = _mapper.Map<MoveOffer>(moveOfferDTO);
             moveOffer.ServiceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var moveRequest = await _moveRequestService.GetMoveRequestById(moveOfferDTO.moveRequestId);
+            var moveRequest = await _moveRequestService.GetMoveRequestDTOById(moveOfferDTO.moveRequestId);
 
             if (!await _truckService.CheckAvailable(moveOffer.ServiceProviderId!, moveRequest!.VehicleType!, moveRequest.StartDate))
             {
@@ -154,5 +154,22 @@ namespace FurniMove.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("GetTruck")]
+        public async Task<IActionResult> GetTruck()
+        {
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var truck = await _truckService.GetTruckBySP(serviceProviderId);
+
+            if (truck == null) return NotFound();
+
+            return Ok(truck);
+        }
+
+        //[HttpGet("GetCurrentMove")]
+        //public async Task<IActionResult> GetCurrentMove()
+        //{
+        //    return Ok();
+        //}
     }
 }

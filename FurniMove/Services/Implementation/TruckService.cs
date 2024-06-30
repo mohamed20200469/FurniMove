@@ -93,5 +93,11 @@ namespace FurniMove.Services.Implementation
             var location = await _locationService.GetLocationById((int)truck.CurrentLocationId);
             return location;
         }
+
+        public async Task<Truck?> GetTruckBySP(string ServiceProviderId)
+        {
+            var truck = await _truckRepo.GetTuckBySP(ServiceProviderId);
+            return truck;
+        }
     }
 }

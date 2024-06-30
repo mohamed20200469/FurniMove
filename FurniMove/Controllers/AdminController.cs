@@ -64,7 +64,7 @@ namespace FurniMove.Controllers
         {
             try
             {
-                var moveRequestDTO = await _moveRequestService.GetMoveRequestById(id);
+                var moveRequestDTO = await _moveRequestService.GetMoveRequestDTOById(id);
                 if (moveRequestDTO == null) return NotFound();
                 return Ok(moveRequestDTO);
             }

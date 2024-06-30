@@ -25,7 +25,7 @@ namespace FurniMove.Services.Implementation
 
         public async Task<ApplianceReadDTO?> CreateAppliance(ApplianceWriteDTO dto, string uri)
         {
-            var move = await _moveRequestService.GetMoveRequestById((int)dto.moveRequestId!);
+            var move = await _moveRequestService.GetMoveRequest((int)dto.moveRequestId!);
             if (move == null) return null;
             var result = _fileService.SaveImage(dto.Img, $"{dto.moveRequestId}");
             if (result.Item1 == 0) return null;

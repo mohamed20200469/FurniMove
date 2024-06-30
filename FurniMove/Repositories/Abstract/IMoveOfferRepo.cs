@@ -12,5 +12,6 @@ namespace FurniMove.Repositories.Abstract
         public Task<List<MoveOffer>?> GetAllMoveOffersByRequestID(int id);
         Task<bool> Save();
         Task<List<MoveOffer>> GetAllMoveOffersByServiceProvider(string serviceProviderId);
+        Task DeleteNonAcceptedOffers(int moveId);
     }
 }
