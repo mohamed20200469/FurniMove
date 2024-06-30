@@ -14,5 +14,8 @@ namespace FurniMove.Services.Abstract
         Task<bool> RateMove(int MoveId, int Rate);
         Task<bool> UpdateMoveRequest(MoveRequest moveRequest);
         Task<MoveRequest> GetMoveRequest(int Id);
+        Task<bool> StartMove(int moveId);
+        Task<bool> EndMove(int moveId);
+        Task<MoveRequestReadDTO?> GetOngoingMove(string serviceProviderId);
     }
 }

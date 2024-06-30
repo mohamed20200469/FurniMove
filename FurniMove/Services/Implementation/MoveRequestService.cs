@@ -5,6 +5,7 @@ using FurniMove.Services.Abstract;
 using FurniMove.Mapper;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FurniMove.Services.Implementation
 {
@@ -193,6 +194,51 @@ namespace FurniMove.Services.Implementation
         {
             var result = await _moveRequestRepo.UpdateMoveRequestAsync(moveRequest); 
             return result;
+        }
+
+        public async Task<bool> StartMove(int moveId)
+        {
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Arabian Standard Time"); // UTC+3
+            DateTime utcNow = DateTime.UtcNow;
+            DateTime utcPlus3Now = TimeZoneInfo.ConvertTime(utcNow, timeZone);
+            DateOnly today = DateOnly.FromDateTime(utcPlus3Now);
+
+            var move = await _moveRequestRepo.GetMoveRequestByIdAsync(moveId);
+            if (move == null || move.status != "Waiting" || move.startDate != today)
+            {
+                return false;
+            }
+            move.status = "Ongoing";
+            var result = await _moveRequestRepo.UpdateMoveRequestAsync(move);
+            return result;
+        }
+
+        public async Task<bool> EndMove(int moveId)
+        {
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Arabian Standard Time"); // UTC+3
+            DateTime utcNow = DateTime.UtcNow;
+            DateTime utcPlus3Now = TimeZoneInfo.ConvertTime(utcNow, timeZone);
+            DateOnly today = DateOnly.FromDateTime(utcPlus3Now);
+
+            var move = await _moveRequestRepo.GetMoveRequestByIdAsync(moveId);
+            if (move == null || move.status != "Ongoing" || move.startDate != today)
+            {
+                return false;
+            }
+            move.status = "Completed";
+            var result = await _moveRequestRepo.UpdateMoveRequestAsync(move);
+            return result;
+        }
+
+        public async Task<MoveRequestReadDTO?> GetOngoingMove(string serviceProviderId)
+        {
+            var movesDTO = await GetMoveRequestsByServiceProvider(serviceProviderId);
+
+            foreach (var item in movesDTO)
+            {
+                if (item.Status == "Ongoing") return item;
+            }
+            return null;
         }
     }
 }

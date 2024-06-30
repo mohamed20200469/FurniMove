@@ -112,15 +112,27 @@ namespace FurniMove.Controllers
         }
 
         [HttpPut("StartMove")]
-        public async Task<IActionResult> StartMove()
+        public async Task<IActionResult> StartMove(int moveId)
         {
-            return Ok();
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var move = await _moveRequestService.GetMoveRequest(moveId);
+            if (move.serviceProviderId != serviceProviderId) return BadRequest();
+
+            var result = await _moveRequestService.StartMove(moveId);
+            if (result) return Ok();
+            return BadRequest();
         }
 
         [HttpPut("EndMove")]
-        public async Task<IActionResult> EndMove()
+        public async Task<IActionResult> EndMove(int moveId)
         {
-            return Ok();
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var move = await _moveRequestService.GetMoveRequest(moveId);
+            if (move.serviceProviderId != serviceProviderId) return BadRequest();
+
+            var result = await _moveRequestService.EndMove(moveId);
+            if (result) return Ok();
+            return BadRequest();
         }
 
         [HttpDelete("DeleteOffer")]
@@ -164,6 +176,17 @@ namespace FurniMove.Controllers
             if (truck == null) return NotFound();
 
             return Ok(truck);
+        }
+
+        [HttpGet("GetOngoingMove")]
+        public async Task<IActionResult> GetOngoingMove()
+        {
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var moveDTO = await _moveRequestService.GetOngoingMove(serviceProviderId!);
+
+            if (moveDTO == null) return NotFound();
+            return Ok(moveDTO);
         }
 
         //[HttpGet("GetCurrentMove")]
