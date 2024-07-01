@@ -3,6 +3,7 @@ using FurniMove.DTOs;
 using FurniMove.Models;
 using FurniMove.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -19,10 +20,12 @@ namespace FurniMove.Controllers
         private readonly ITruckService _truckService;
         private readonly IMoveRequestService _moveRequestService;
         private readonly IApplianceService _applianceService;
+        private readonly UserManager<AppUser> _userManager;
 
         public ServiceProviderController(IMoveOfferService moveOfferService,
             IMapper mapper, IHttpContextAccessor httpContextAccessor, ITruckService truckService,
-            IMoveRequestService moveRequestService, IApplianceService applianceService)
+            IMoveRequestService moveRequestService, IApplianceService applianceService, 
+            UserManager<AppUser> userManager)
         {
             _moveOfferService = moveOfferService;
             _mapper = mapper;
@@ -30,13 +33,19 @@ namespace FurniMove.Controllers
             _truckService = truckService;
             _moveRequestService = moveRequestService;
             _applianceService = applianceService;
+            _userManager = userManager;
         }
 
         [HttpPost("CreateMoveOffer")]
         public async Task<IActionResult> CreateMoveOffer(MoveOfferWriteDTO moveOfferDTO)
         {
             var moveOffer = _mapper.Map<MoveOffer>(moveOfferDTO);
-            moveOffer.ServiceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var serviceProvider = await _userManager.FindByIdAsync(serviceProviderId!);
+
+            if (serviceProvider!.Suspended) return Unauthorized("User is suspended!"); 
+
+            moveOffer.ServiceProviderId = serviceProviderId;
 
             var moveRequest = await _moveRequestService.GetMoveRequestDTOById(moveOfferDTO.moveRequestId);
 
@@ -89,7 +98,7 @@ namespace FurniMove.Controllers
             return Ok(moveRequests);
         }
 
-        [HttpGet("GetAllMovesByServiceProvider")]
+        [HttpGet("GetMoveHistory")]
         public async Task<IActionResult> GetAllMovesByServiceProvider()
         {
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -178,21 +187,26 @@ namespace FurniMove.Controllers
             return Ok(truck);
         }
 
-        [HttpGet("GetOngoingMove")]
-        public async Task<IActionResult> GetOngoingMove()
+
+        [HttpGet("GetTodaysMove")]
+        public async Task<IActionResult> GetTodaysMove()
         {
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var moveDTO = await _moveRequestService.GetOngoingMove(serviceProviderId!);
+            var moveDTO = await _moveRequestService.GetTodaysMove(serviceProviderId!);
 
             if (moveDTO == null) return NotFound();
             return Ok(moveDTO);
         }
-
-        //[HttpGet("GetCurrentMove")]
-        //public async Task<IActionResult> GetCurrentMove()
+        //[HttpGet("GetOngoingMove")]
+        //public async Task<IActionResult> GetOngoingMove()
         //{
-        //    return Ok();
+        //    var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        //    var moveDTO = await _moveRequestService.GetOngoingMove(serviceProviderId!);
+
+        //    if (moveDTO == null) return NotFound();
+        //    return Ok(moveDTO);
         //}
     }
 }

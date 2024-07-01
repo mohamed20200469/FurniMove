@@ -2,9 +2,11 @@
 using FurniMove.DTOs;
 using FurniMove.Models;
 using FurniMove.Services.Abstract;
+using FurniMove.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using System.Security.Claims;
 
 namespace FurniMove.Controllers
@@ -23,11 +25,13 @@ namespace FurniMove.Controllers
         private readonly IApplianceService _applianceService;
         private readonly IMapService _mapService;
         private readonly ITruckService _truckService;
+        private readonly RoboFlowService _roboFlowService;
 
         public CustomerController(IMapper mapper, IMoveRequestService moveRequestService, 
             IHttpContextAccessor httpContextAccessor, IMoveOfferService moveOfferService,
             ILocationService locationService, UserManager<AppUser> userManager,
-            IMapService mapService, IApplianceService applianceService, ITruckService truckService) 
+            IMapService mapService, IApplianceService applianceService, ITruckService truckService,
+            RoboFlowService roboFlowService) 
         {
             _mapper = mapper;
             _moveRequestService = moveRequestService;
@@ -38,6 +42,7 @@ namespace FurniMove.Controllers
             _applianceService = applianceService;
             _mapService = mapService;
             _truckService = truckService;
+            _roboFlowService = roboFlowService;
         }
 
         [HttpPost("CreateLocation")]
@@ -63,7 +68,9 @@ namespace FurniMove.Controllers
                 return BadRequest(ModelState);
 
             var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var user = await _userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId!);
+
+            if (user!.Suspended) return Unauthorized("User is suspended!");
 
             if (moveRequestWriteDTO.numOfAppliances > 0)
             {
@@ -74,7 +81,7 @@ namespace FurniMove.Controllers
                     await _userManager.UpdateAsync(user);
                     return Created(nameof(CreateMoveRequest), moveRequestReadDTO);
                 }
-                return BadRequest("User already has an ongoing move request");
+                return BadRequest("User already has an ongoing move request!");
             }
             return BadRequest();
         }
@@ -151,6 +158,48 @@ namespace FurniMove.Controllers
             var result = await _moveOfferService.AcceptMoveOffer(Id);
             if (result) return Ok();
             return NotFound();
+        }
+
+        [HttpPost("inference")]
+        public async Task<IActionResult> GetInference(string imgUrl)
+        {
+            if (string.IsNullOrEmpty(imgUrl))
+            {
+                return BadRequest("Image URL is required.");
+            }
+
+            string result;
+            try
+            {
+                result = await _roboFlowService.GetInferenceResultAsync(imgUrl);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)System.Net.HttpStatusCode.InternalServerError, ex.Message);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("GetCurrentMove")]
+        public async Task<IActionResult> GetCurrentMove()
+        {
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var moveDTO = await _moveRequestService.GetMoveRequestByUserId(userId);
+            if (moveDTO != null)
+            {
+                return Ok(moveDTO);
+            }
+            return NotFound();
+        }
+
+        [HttpGet("GetHistory")]
+        public async Task<IActionResult> GetMovesHistory()
+        {
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var movesDTO = await _moveRequestService.GetCustomerHistory(userId);
+
+            return Ok(movesDTO);
         }
     }
 }

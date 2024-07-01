@@ -13,5 +13,7 @@ namespace FurniMove.Repositories.Abstract
         public Task<bool> SaveAsync();
         public Task<MoveRequest?> GetUserCreatedRequest(string userId);
         public Task<List<MoveRequest>> GetMoveRequestsByServiceProvider(string serviceProviderId);
+        Task<MoveRequest?> GetTodaysMove(string serviceProviderId, DateTime dateTime);
+        Task<List<MoveRequest>> GetMoveRequestsByCustomer(string customerId);
     }
 }

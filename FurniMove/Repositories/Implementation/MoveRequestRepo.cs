@@ -43,7 +43,13 @@ namespace FurniMove.Repositories.Implementation
 
         public async Task<List<MoveRequest>> GetMoveRequestsByServiceProvider(string serviceProviderId)
         {
-            var list = await _db.MoveRequests.Where(x => x.serviceProviderId == serviceProviderId).ToListAsync();
+            var list = await _db.MoveRequests.Where(x => x.serviceProviderId == serviceProviderId && x.status == "Completed").ToListAsync();
+            return list;
+        }
+
+        public async Task<List<MoveRequest>> GetMoveRequestsByCustomer(string customerId)
+        {
+            var list = await _db.MoveRequests.Where(x => x.customerId == customerId && x.status == "Completed").ToListAsync();
             return list;
         }
 
@@ -61,8 +67,7 @@ namespace FurniMove.Repositories.Implementation
 
         public async Task<MoveRequest?> GetUserCreatedRequest(string userId)
         {
-            var request = await _db.MoveRequests.FirstOrDefaultAsync(
-                x => x.customerId == userId && x.status != "Completed");
+            var request = await _db.MoveRequests.FirstOrDefaultAsync(x => x.customerId == userId && x.status != "Completed");
             return request;
         }
 
@@ -70,6 +75,13 @@ namespace FurniMove.Repositories.Implementation
         {
             var list = await _db.MoveRequests.ToListAsync();
             return list;
+        }
+
+        public async Task<MoveRequest?> GetTodaysMove(string serviceProviderId, DateTime dateTime)
+        {
+            DateOnly today = DateOnly.FromDateTime(dateTime);
+            var move = await _db.MoveRequests.FirstOrDefaultAsync(x => x.serviceProviderId == serviceProviderId && x.startDate == today);
+            return move;
         }
     }
 }

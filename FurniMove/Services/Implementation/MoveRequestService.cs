@@ -5,7 +5,6 @@ using FurniMove.Services.Abstract;
 using FurniMove.Mapper;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace FurniMove.Services.Implementation
 {
@@ -83,10 +82,12 @@ namespace FurniMove.Services.Implementation
             return moveRequestDTO;
         }
 
-        public async Task<MoveRequest?> GetMoveRequestByUserId(string userId)
+        public async Task<MoveRequestReadDTO?> GetMoveRequestByUserId(string userId)
         {
             var request = await _moveRequestRepo.GetUserCreatedRequest(userId);
-            return request;
+            if (request == null) return null;
+            var moveDTO = await GetMoveRequestDTOById(request.Id);
+            return moveDTO;
         }
 
         public async Task<List<MoveRequestReadDTO>> GetMoveRequestsByStatus(string status)
@@ -198,10 +199,8 @@ namespace FurniMove.Services.Implementation
 
         public async Task<bool> StartMove(int moveId)
         {
-            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Arabian Standard Time"); // UTC+3
-            DateTime utcNow = DateTime.UtcNow;
-            DateTime utcPlus3Now = TimeZoneInfo.ConvertTime(utcNow, timeZone);
-            DateOnly today = DateOnly.FromDateTime(utcPlus3Now);
+            var dateTime = await _mapService.GetLocalTime();
+            DateOnly today = DateOnly.FromDateTime(dateTime);
 
             var move = await _moveRequestRepo.GetMoveRequestByIdAsync(moveId);
             if (move == null || move.status != "Waiting" || move.startDate != today)
@@ -215,10 +214,8 @@ namespace FurniMove.Services.Implementation
 
         public async Task<bool> EndMove(int moveId)
         {
-            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Arabian Standard Time"); // UTC+3
-            DateTime utcNow = DateTime.UtcNow;
-            DateTime utcPlus3Now = TimeZoneInfo.ConvertTime(utcNow, timeZone);
-            DateOnly today = DateOnly.FromDateTime(utcPlus3Now);
+            var dateTime = await _mapService.GetLocalTime();
+            DateOnly today = DateOnly.FromDateTime(dateTime);
 
             var move = await _moveRequestRepo.GetMoveRequestByIdAsync(moveId);
             if (move == null || move.status != "Ongoing" || move.startDate != today)
@@ -226,7 +223,7 @@ namespace FurniMove.Services.Implementation
                 return false;
             }
             move.status = "Completed";
-            move.endTime = utcPlus3Now;
+            move.endTime = dateTime;
             var result = await _moveRequestRepo.UpdateMoveRequestAsync(move);
             return result;
         }
@@ -240,6 +237,30 @@ namespace FurniMove.Services.Implementation
                 if (item.Status == "Ongoing") return item;
             }
             return null;
+        }
+
+        public async Task<MoveRequestReadDTO?> GetTodaysMove(string serviceProviderId)
+        {
+            var dateTime = await _mapService.GetLocalTime();
+            var move = await _moveRequestRepo.GetTodaysMove(serviceProviderId, dateTime);
+            if (move == null) return null;
+            
+            var moveDTO = await GetMoveRequestDTOById(move.Id);
+            return moveDTO;
+        }
+
+        public async Task<List<MoveRequestReadDTO>> GetCustomerHistory(string customerId)
+        {
+            var moves = await _moveRequestRepo.GetMoveRequestsByCustomer(customerId);
+
+            var movesDTO = new List<MoveRequestReadDTO>();
+
+            foreach (var item in moves)
+            {
+                var moveDTO = await GetMoveRequestDTOById(item.Id);
+                movesDTO.Add(moveDTO!);
+            }
+            return movesDTO;
         }
     }
 }

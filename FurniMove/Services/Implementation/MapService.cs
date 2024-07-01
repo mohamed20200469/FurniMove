@@ -80,5 +80,21 @@ namespace FurniMove.Services.Implementation
             }
         }
 
+        public async Task<DateTime> GetLocalTime()
+        {
+            return await Task.Run(() =>
+            {
+                DateTime utcNow = DateTime.UtcNow;
+
+                string timeZoneId = "E. Europe Standard Time";
+
+                TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+
+                DateTime localTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, timeZone);
+
+                return localTime;
+            });
+        }
+
     }
 }

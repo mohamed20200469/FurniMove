@@ -9,7 +9,7 @@ namespace FurniMove.Services.Abstract
         public Task<List<MoveRequestReadDTO>> GetMoveRequestsByStatus(string status);
         public Task<List<MoveRequestReadDTO>> GetAllMoveRequests();
         public Task<MoveRequestReadDTO?> GetMoveRequestDTOById(int id);
-        public Task<MoveRequest?> GetMoveRequestByUserId(string userId);
+        public Task<MoveRequestReadDTO?> GetMoveRequestByUserId(string userId);
         public Task<List<MoveRequestReadDTO>> GetMoveRequestsByServiceProvider(string serviceProviderId);
         Task<bool> RateMove(int MoveId, int Rate);
         Task<bool> UpdateMoveRequest(MoveRequest moveRequest);
@@ -17,5 +17,7 @@ namespace FurniMove.Services.Abstract
         Task<bool> StartMove(int moveId);
         Task<bool> EndMove(int moveId);
         Task<MoveRequestReadDTO?> GetOngoingMove(string serviceProviderId);
+        Task<MoveRequestReadDTO?> GetTodaysMove(string serviceProviderId);
+        Task<List<MoveRequestReadDTO>> GetCustomerHistory(string customerId);
     }
 }
