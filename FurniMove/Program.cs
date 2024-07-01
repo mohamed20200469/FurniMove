@@ -34,7 +34,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<ITruckService, TruckService>();
 builder.Services.AddScoped<IApplianceService, ApplianceService>();
-builder.Services.AddScoped<IMapService>(provider => new MapService("AIzaSyCRQwDr5899Gir1dm7zudCMIdRw8eaIQto"));
+builder.Services.AddScoped<IMapService>(provider => new MapService(builder.Configuration["GoogleMaps:ApiKey"]!));
 
 var emailConfiguration = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 
