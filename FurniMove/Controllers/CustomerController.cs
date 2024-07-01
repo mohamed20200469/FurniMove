@@ -115,7 +115,7 @@ namespace FurniMove.Controllers
         }
 
         [HttpPost("AddAppliance")]
-        public async Task<IActionResult> AddAppliance(ApplianceWriteDTO dto)
+        public async Task<IActionResult> AddAppliance([FromBody] ApplianceWriteDTO dto)
         {
             var applianceReadDTO = await _applianceService.CreateAppliance(dto, $"{Request.Scheme}://{Request.Host}/Uploads/{dto.moveRequestId}");
             if (applianceReadDTO != null)
