@@ -68,8 +68,7 @@ namespace FurniMove.Controllers
                 if (await _userManager.FindByEmailAsync(registerDTO.Email) != null) 
                     return BadRequest("Email already in use!");
 
-                if(registerDTO.Role != "Admin" &&
-                    registerDTO.Role != "Customer" &&
+                if(registerDTO.Role != "Customer" &&
                     registerDTO.Role != "ServiceProvider") 
                     return BadRequest("Role Doesn't exist!");
 

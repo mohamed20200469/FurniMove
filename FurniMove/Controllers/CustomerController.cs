@@ -25,13 +25,13 @@ namespace FurniMove.Controllers
         private readonly IApplianceService _applianceService;
         private readonly IMapService _mapService;
         private readonly ITruckService _truckService;
-        private readonly RoboFlowService _roboFlowService;
+        private readonly IRoboFlowService _roboFlowService;
 
         public CustomerController(IMapper mapper, IMoveRequestService moveRequestService, 
             IHttpContextAccessor httpContextAccessor, IMoveOfferService moveOfferService,
             ILocationService locationService, UserManager<AppUser> userManager,
             IMapService mapService, IApplianceService applianceService, ITruckService truckService,
-            RoboFlowService roboFlowService) 
+            IRoboFlowService roboFlowService) 
         {
             _mapper = mapper;
             _moveRequestService = moveRequestService;
@@ -74,7 +74,7 @@ namespace FurniMove.Controllers
 
             if (moveRequestWriteDTO.numOfAppliances > 0)
             {
-                var moveRequestReadDTO = await _moveRequestService.CreateMoveRequest(moveRequestWriteDTO, userId);
+                var moveRequestReadDTO = await _moveRequestService.CreateMoveRequest(moveRequestWriteDTO, userId!);
                 if (moveRequestReadDTO != null)
                 {
                     user.MoveCounter++;
@@ -106,7 +106,7 @@ namespace FurniMove.Controllers
         public async Task<IActionResult> GetOffers()
         {
             var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var request = await _moveRequestService.GetMoveRequestByUserId(userId);
+            var request = await _moveRequestService.GetMoveRequestByUserId(userId!);
             if (request != null)
             {
                 return Ok(await _moveOfferService.GetAllMoveOffersByRequestId(request.Id));
@@ -115,19 +115,29 @@ namespace FurniMove.Controllers
         }
 
         [HttpPost("AddAppliance")]
-        public async Task<IActionResult> AddAppliance([FromBody] ApplianceWriteDTO dto)
+        public async Task<IActionResult> AddAppliance(IFormFile img, int moveId)
         {
-            var applianceReadDTO = await _applianceService.CreateAppliance(dto, $"{Request.Scheme}://{Request.Host}/Uploads/{dto.moveRequestId}");
-            if (applianceReadDTO != null)
-            {
-                return Ok(applianceReadDTO);
-            }
-            return Ok("No MoveRequest found!");
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var request = await _moveRequestService.GetMoveRequest(moveId);
+
+            if (request == null) return NotFound("No move exists with this Id!");
+
+            if (request.customerId != userId) return Unauthorized("Access denied!");
+
+            var applianceReadDTO = await _applianceService.CreateAppliance(img, moveId, $"{Request.Scheme}://{Request.Host}/Uploads/{moveId}");
+            
+            return Ok(applianceReadDTO);
         }
 
         [HttpGet("GetTruckLocation")]
         public async Task<IActionResult> GetTruckLocation(int Id)
         {
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var move = await _moveRequestService.GetMoveRequestByUserId(userId);
+            if (move == null || move.truckId != Id)
+            {
+                return Unauthorized();
+            }
             var location = await _truckService.GetTruckLocation(Id);
             if (location != null)
             {
@@ -139,14 +149,22 @@ namespace FurniMove.Controllers
         [HttpPut("RateMove")]
         public async Task<IActionResult> RateMove(int MoveId, int Rate)
         {
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var move = await _moveRequestService.GetMoveRequest(MoveId);
+
+            if (move == null) return NotFound();
+            if (move.customerId != userId) return Unauthorized();
+
             var result = await _moveRequestService.RateMove(MoveId, Rate);
             if (result) return Ok();
             return NotFound();
         }
 
         //[HttpPut("AddApplianceTags")]
-        //public async Task<IActionResult> AddTags(int Id, [FromBody] List<string> tags)
+        //public async Task<IActionResult> AddTags(int Id)
         //{
+        //    var appliance = await _applianceService.GetAppliance(Id);
+        //    var tags = await _applianceService.GetTagsAsync(appliance!);
         //    var result = await _applianceService.AddTagsToAppliance(Id, tags);
         //    if (result) return Ok();
         //    return NotFound();
@@ -155,6 +173,14 @@ namespace FurniMove.Controllers
         [HttpPut("AcceptMoveOffer")]
         public async Task<IActionResult> AcceptOffer(int Id)
         {
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var move = await _moveRequestService.GetMoveRequestByUserId(userId);
+            var offer = await _moveOfferService.GetMoveOfferById(Id);
+            
+            if (offer == null) return NotFound();
+            if (move == null) return BadRequest();
+            if (offer.MoveRequestId != move.Id) return Unauthorized();
+
             var result = await _moveOfferService.AcceptMoveOffer(Id);
             if (result) return Ok();
             return NotFound();
@@ -175,7 +201,7 @@ namespace FurniMove.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode((int)System.Net.HttpStatusCode.InternalServerError, ex.Message);
+                return BadRequest(ex.Message);
             }
 
             return Ok(result);
@@ -185,7 +211,7 @@ namespace FurniMove.Controllers
         public async Task<IActionResult> GetCurrentMove()
         {
             var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var moveDTO = await _moveRequestService.GetMoveRequestByUserId(userId);
+            var moveDTO = await _moveRequestService.GetMoveRequestDTOByUserId(userId!);
             if (moveDTO != null)
             {
                 return Ok(moveDTO);
@@ -197,7 +223,7 @@ namespace FurniMove.Controllers
         public async Task<IActionResult> GetMovesHistory()
         {
             var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var movesDTO = await _moveRequestService.GetCustomerHistory(userId);
+            var movesDTO = await _moveRequestService.GetCustomerHistory(userId!);
 
             return Ok(movesDTO);
         }

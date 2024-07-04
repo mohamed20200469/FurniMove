@@ -15,21 +15,30 @@ namespace FurniMove.Services.Implementation
         private readonly ILocationService _locationService;
         private readonly IMoveRequestRepo _moveRequestRepo;
         private readonly IMapService _mapService;
+        private readonly ITruckService _truckService;
 
         public MoveRequestService(IMoveRequestRepo moveRequestRepo, ILocationService locationService,
-            UserManager<AppUser> userManager, IMapper mapper, IMapService mapService)
+            UserManager<AppUser> userManager, IMapper mapper, IMapService mapService,
+            ITruckService truckService)
         {
             _mapper = mapper;
             _userManager = userManager;
             _locationService = locationService;
             _moveRequestRepo = moveRequestRepo;
             _mapService = mapService;
+            _truckService = truckService;
         }
 
-        public async Task<MoveRequest> GetMoveRequest(int Id)
+        public async Task<MoveRequest?> GetMoveRequest(int Id)
         {
             var moveRequest = await _moveRequestRepo.GetMoveRequestByIdAsync(Id);
             return moveRequest;
+        }
+
+        public async Task<MoveRequest?> GetMoveRequestByUserId(string userId)
+        {
+            var move = await _moveRequestRepo.GetUserCreatedRequest(userId);
+            return move;
         }
 
         public async Task<MoveRequestReadDTO?> CreateMoveRequest(MoveRequestWriteDTO moveRequestDTO, string userId)
@@ -53,7 +62,7 @@ namespace FurniMove.Services.Implementation
             }
             else return null;
             var result = await _moveRequestRepo.CreateMoveRequestAsync(moveRequest);
-            if (result) return moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+            if (result) return moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, null);
             else return null;
         }
 
@@ -67,22 +76,26 @@ namespace FurniMove.Services.Implementation
             var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId!);
             var customer = await _userManager.FindByIdAsync(moveRequest.customerId!);
             var customerDTO = _mapper.Map<UserDTO>(customer);
+            
             var moveRequestDTO = new MoveRequestReadDTO();
 
             if (moveRequest.serviceProviderId != null)
             {
                 var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
                 var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
-                moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+                var truck = await _truckService.GetTruckById((int)moveRequest.truckId!);
+                moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, serviceProviderDTO);
+                moveRequestDTO.Truck = truck;
+                moveRequestDTO.TruckId = truck!.Id;
             } else
             {
-                moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+                moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, null);
             }
 
             return moveRequestDTO;
         }
 
-        public async Task<MoveRequestReadDTO?> GetMoveRequestByUserId(string userId)
+        public async Task<MoveRequestReadDTO?> GetMoveRequestDTOByUserId(string userId)
         {
             var request = await _moveRequestRepo.GetUserCreatedRequest(userId);
             if (request == null) return null;
@@ -98,21 +111,24 @@ namespace FurniMove.Services.Implementation
 
             foreach (var moveRequest in moveRequests)
             {
-                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
-                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
-                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId!);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId!);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId!);
                 var customerDTO = _mapper.Map<UserDTO>(customer);
 
                 if (moveRequest.serviceProviderId != null)
                 {
                     var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
                     var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
-                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, serviceProviderDTO);
+                    var truck = await _truckService.GetTruckById((int)moveRequest.truckId!);
+                    moveRequestDTO.Truck = truck;
+                    moveRequestDTO.TruckId = truck!.Id;
                     moveRequestDTOs.Add(moveRequestDTO);
                 }
                 else
                 {
-                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, null);
                     moveRequestDTOs.Add(moveRequestDTO);
                 }
             }
@@ -127,21 +143,24 @@ namespace FurniMove.Services.Implementation
 
             foreach (var moveRequest in moveRequests)
             {
-                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
-                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
-                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId!);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId!);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId!);
                 var customerDTO = _mapper.Map<UserDTO>(customer);
 
                 if (moveRequest.serviceProviderId != null)
                 {
                     var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
                     var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
-                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, serviceProviderDTO);
+                    var truck = await _truckService.GetTruckById((int)moveRequest.truckId!);
+                    moveRequestDTO.Truck = truck;
+                    moveRequestDTO.TruckId = truck!.Id;
                     moveRequestDTOs.Add(moveRequestDTO);
                 }
                 else
                 {
-                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, null);
                     moveRequestDTOs.Add(moveRequestDTO);
                 }
 
@@ -158,21 +177,24 @@ namespace FurniMove.Services.Implementation
 
             foreach (var moveRequest in moveRequests)
             {
-                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId);
-                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId);
-                var customer = await _userManager.FindByIdAsync(moveRequest.customerId);
+                var startLocation = await _locationService.GetLocationById((int)moveRequest.startLocationId!);
+                var endLocation = await _locationService.GetLocationById((int)moveRequest.endLocationId!);
+                var customer = await _userManager.FindByIdAsync(moveRequest.customerId!);
                 var customerDTO = _mapper.Map<UserDTO>(customer);
 
                 if (moveRequest.serviceProviderId != null)
                 {
                     var serviceProvider = await _userManager.FindByIdAsync(moveRequest.serviceProviderId);
                     var serviceProviderDTO = _mapper.Map<UserDTO>(serviceProvider);
-                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, serviceProviderDTO);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, serviceProviderDTO);
+                    var truck = await _truckService.GetTruckById((int)moveRequest.truckId!);
+                    moveRequestDTO.Truck = truck;
+                    moveRequestDTO.TruckId = truck!.Id;
                     moveRequestDTOs.Add(moveRequestDTO);
                 }
                 else
                 {
-                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation, endLocation, customerDTO, null);
+                    var moveRequestDTO = moveRequest.ToMoveRequestDTO(startLocation!, endLocation!, customerDTO, null);
                     moveRequestDTOs.Add(moveRequestDTO);
                 }
             }

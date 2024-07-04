@@ -11,6 +11,8 @@ namespace FurniMove.Services.Abstract
         public Task<List<MoveOffer>> GetAllMoveOffers();
         public Task<List<MoveOfferReadDTO>?> GetAllMoveOffersByRequestId(int id);
         Task<List<MoveOfferReadDTO>> GetAllMoveOffersByServiceProvider(string serviceProviderId);
+        Task<double?> GetMaxCost(int moveId);
         public Task<MoveOffer?> GetMoveOfferById(int id);
+        Task<bool> Offered(int moveId, string SPId);
     }
 }

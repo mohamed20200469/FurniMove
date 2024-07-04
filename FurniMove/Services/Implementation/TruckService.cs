@@ -2,9 +2,9 @@
 using FurniMove.DTOs;
 using FurniMove.Models;
 using FurniMove.Repositories.Abstract;
-using FurniMove.Repositories.Implementation;
 using FurniMove.Services.Abstract;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace FurniMove.Services.Implementation
 {
@@ -47,7 +47,7 @@ namespace FurniMove.Services.Implementation
             if (truck == null) return false;
 
             truck.Brand = truckDTO.Brand;
-            truck.Year = (int)truckDTO.Year;
+            truck.Year = (int)truckDTO.Year!;
             truck.PlateNumber = truckDTO.PlateNumber;
             truck.Model = truckDTO.Model;
             truck.Type = truckDTO.Type;
@@ -98,6 +98,54 @@ namespace FurniMove.Services.Implementation
         {
             var truck = await _truckRepo.GetTuckBySP(ServiceProviderId);
             return truck;
+        }
+
+        public async Task<(bool, string)> ValidateAsync(TruckWriteDTO dto)
+        {
+            return await Task.Run(() =>
+            {
+                // Validate PlateNumber
+                var plateNumberPattern = @"^\d{1,4}[ا-ي]{1,4}$";
+                if (string.IsNullOrEmpty(dto.PlateNumber) || !Regex.IsMatch(dto.PlateNumber, plateNumberPattern))
+                {
+                    return (false, "Plate number is invalid. It should be 1 to 4 digits followed by 1 to 4 Arabic letters.");
+                }
+
+                // Validate Year
+                if (!dto.Year.HasValue || dto.Year < 1980 || dto.Year > 2024)
+                {
+                    return (false, "Year is invalid. It should be between 1980 and 2024.");
+                }
+
+                // Validate Type
+                var validTypes = new List<string> { "Van", "Pickup", "Truck" };
+                if (string.IsNullOrEmpty(dto.Type) || !validTypes.Contains(dto.Type))
+                {
+                    return (false, "Type is invalid. It should be one of the following: Van, Pickup, Truck.");
+                }
+
+                // Validate Brand and Model
+                var validBrandsAndModels = new Dictionary<string, List<string>>
+            {
+                { "Toyota", new List<string> { "Hilux", "Hiace" } },
+                { "Ford", new List<string> { "F-150", "Ranger", "Transit" } },
+                { "Chevrolet", new List<string> { "Silverado", "Express", "Colorado" } },
+                { "Mercedes-Benz", new List<string> { "Sprinter", "Vito", "X-Class" } },
+                { "Nissan", new List<string> { "Navara", "NV350" } }
+            };
+
+                if (string.IsNullOrEmpty(dto.Brand) || !validBrandsAndModels.ContainsKey(dto.Brand))
+                {
+                    return (false, "Brand is invalid. It should be one of the following: Toyota, Ford, Chevrolet, Mercedes-Benz, Nissan.");
+                }
+
+                if (string.IsNullOrEmpty(dto.Model) || !validBrandsAndModels[dto.Brand].Contains(dto.Model))
+                {
+                    return (false, $"Model is invalid for the brand {dto.Brand}. Valid models are: {string.Join(", ", validBrandsAndModels[dto.Brand])}.");
+                }
+
+                return (true, "Validation successful.");
+            });
         }
     }
 }

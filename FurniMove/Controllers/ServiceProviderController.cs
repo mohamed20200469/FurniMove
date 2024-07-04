@@ -41,9 +41,13 @@ namespace FurniMove.Controllers
         {
             var moveOffer = _mapper.Map<MoveOffer>(moveOfferDTO);
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var serviceProvider = await _userManager.FindByIdAsync(serviceProviderId!);
+            var serviceProvider = await _userManager.FindByIdAsync(serviceProviderId!);                    
 
-            if (serviceProvider!.Suspended) return Unauthorized("User is suspended!"); 
+            if (serviceProvider!.Suspended) return Unauthorized("User is suspended!");
+            if (await _moveOfferService.Offered((int)moveOffer.MoveRequestId!, serviceProviderId!))
+            {
+                return BadRequest("Already created an offer for this move request!");
+            }
 
             moveOffer.ServiceProviderId = serviceProviderId;
 
@@ -52,6 +56,18 @@ namespace FurniMove.Controllers
             if (!await _truckService.CheckAvailable(moveOffer.ServiceProviderId!, moveRequest!.VehicleType!, moveRequest.StartDate))
             {
                 return BadRequest("No suitable truck available!");
+            }
+
+            if (moveRequest.Status != "Created")
+            {
+                return BadRequest("Move is already booked!");
+            }
+
+            var max = await _moveOfferService.GetMaxCost(moveOfferDTO.moveRequestId);
+
+            if (moveOfferDTO.price > max)
+            {
+                return BadRequest($"Offer is too high, maximum price is {max} Egyptian Pounds!");
             }
 
             bool result = await _moveOfferService.CreateMoveOffer(moveOffer);
@@ -75,8 +91,16 @@ namespace FurniMove.Controllers
         {
             if (!ModelState.IsValid) return BadRequest();
 
-            if (truckWriteDTO.Year > 1980 && truckWriteDTO.Year < 2024)
-            if (truckWriteDTO.Year > 1980 && truckWriteDTO.Year < 2024)
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var truck = await _truckService.GetTruckBySP(serviceProviderId!);
+
+            if (truck != null) return BadRequest("User already has a truck!");
+
+            var validation = await _truckService.ValidateAsync(truckWriteDTO);
+
+            if (!validation.Item1) return BadRequest(validation.Item2);
+
+            else
             {
                 var Truck = _mapper.Map<Truck>(truckWriteDTO);
                 Truck.ServiceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -87,7 +111,6 @@ namespace FurniMove.Controllers
                 }
                 return BadRequest();
             }
-            return BadRequest("Invalid year");
         }
 
 
@@ -147,19 +170,29 @@ namespace FurniMove.Controllers
         [HttpDelete("DeleteOffer")]
         public async Task<IActionResult> DeleteOffer(int OfferId)
         {
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var offer = await _moveOfferService.GetMoveOfferById(OfferId);
+            
+            if (offer == null) return NotFound();
+            if (offer.ServiceProviderId != userId) return Unauthorized();
+
             var result = await _moveOfferService.DeleteMoveOfferById(OfferId);
             if(result) return Ok("Offer deleted successfully!");
             return Ok("Offer doesn't exist or is already Accepted!");
         }
 
         [HttpPatch("UpdateTruck")]
-        public async Task<IActionResult> UpdateTruck(TruckWriteDTO truck)
+        public async Task<IActionResult> UpdateTruck(TruckWriteDTO truckDTO)
         {
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            var result = await _truckService.UpdateTruck(truck, serviceProviderId);
 
-            if (result) return Ok(truck);
+            var validation = await _truckService.ValidateAsync(truckDTO);
+
+            if (!validation.Item1) return BadRequest(validation.Item2);
+
+            var result = await _truckService.UpdateTruck(truckDTO, serviceProviderId);
+
+            if (result) return Ok(truckDTO);
             return NotFound();
         }
 

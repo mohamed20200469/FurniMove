@@ -12,6 +12,8 @@ namespace FurniMove.DTOs
         public UserDTO? Customer { get; set; }
         public string? ServiceProviderId {  get; set; }
         public UserDTO? ServiceProvider { get; set; }
+        public int? TruckId { get; set; }
+        public Truck? Truck { get; set; }
         public string? Status { get; set; }
         public DateOnly StartDate { get; set; }
         public DateTime? EndTime { get; set; }

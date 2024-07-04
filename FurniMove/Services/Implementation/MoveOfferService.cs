@@ -111,5 +111,37 @@ namespace FurniMove.Services.Implementation
             }
             return false;
         }
+
+        public async Task<double?> GetMaxCost(int moveId)
+        {
+            var move = await _moveRequestService.GetMoveRequest(moveId);
+            if (move == null) return null;
+            double cost;
+
+            if (move.VehicleType == "Van")
+            {
+                 cost = 150 + 20 * move.Distance + 5 * move.ETA + 20 * move.numOfAppliances;
+            }
+            else if (move.VehicleType == "Pickup")
+            {
+                cost = 200 + 30 * move.Distance + 7.5 * move.ETA + 20 * move.numOfAppliances;
+            }
+            else //if (move.VehicleType == "Truck")
+            {
+                cost = 250 + 40 * move.Distance + 10 * move.ETA + 20 * move.numOfAppliances;
+            }
+            return cost;
+        }
+
+        public async Task<bool> Offered(int moveId, string SPId)
+        {
+            var offers = await GetAllMoveOffersByServiceProvider(SPId);
+            if (offers == null) return false;
+            foreach (var offer in offers)
+            {
+                if (offer.MoveRequestId == moveId) return true;
+            }
+            return false;
+        }
     }
 }
