@@ -14,5 +14,6 @@ namespace FurniMove.Services.Abstract
         Task<Location?> UpdateOrAddTruckLocation(string serviceProviderId, LocationWriteDTO locationDTO);
         Task<Location?> GetTruckLocation(int Id);
         Task<Truck?> GetTruckBySP(string ServiceProviderId);
+        Task<(bool, string)> ValidateAsync(TruckWriteDTO dto);
     }
 }

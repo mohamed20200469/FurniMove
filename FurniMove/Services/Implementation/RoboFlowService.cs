@@ -1,10 +1,11 @@
-﻿using System.Net;
+﻿using FurniMove.Services.Abstract;
+using System.Net;
 using System.Text.Json;
 using System.Web;
 
 namespace FurniMove.Services.Implementation
 {
-    public class RoboFlowService
+    public class RoboFlowService : IRoboFlowService
     {
         private readonly string _apiKey;
         private readonly string _modelEndpoint;
@@ -39,7 +40,7 @@ namespace FurniMove.Services.Implementation
                     if (predictions.GetArrayLength() > 0)
                     {
                         JsonElement firstPrediction = predictions[0];
-                        string className = firstPrediction.GetProperty("class").GetString();
+                        string className = firstPrediction.GetProperty("class").GetString()!;
                         return className;
                     }
                     else

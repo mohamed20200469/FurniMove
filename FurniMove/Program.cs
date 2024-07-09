@@ -38,12 +38,12 @@ builder.Services.AddScoped<IMapService>(provider => new MapService(builder.Confi
 
 var emailConfiguration = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
 
-builder.Services.AddSingleton(emailConfiguration!);
+builder.Services.AddSingleton(emailConfiguration);
 
 // Configure RoboFlowService
 string apiKey = builder.Configuration["RoboFlow:ApiKey"]!;
 string modelEndpoint = builder.Configuration["RoboFlow:ModelEndpoint"]!;
-builder.Services.AddSingleton(new RoboFlowService(apiKey, modelEndpoint));
+builder.Services.AddScoped<IRoboFlowService>(provider => new RoboFlowService(apiKey, modelEndpoint));
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>

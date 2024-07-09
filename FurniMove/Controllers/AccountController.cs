@@ -68,8 +68,7 @@ namespace FurniMove.Controllers
                 if (await _userManager.FindByEmailAsync(registerDTO.Email) != null) 
                     return BadRequest("Email already in use!");
 
-                if(registerDTO.Role != "Admin" &&
-                    registerDTO.Role != "Customer" &&
+                if(registerDTO.Role != "Customer" &&
                     registerDTO.Role != "ServiceProvider") 
                     return BadRequest("Role Doesn't exist!");
 
@@ -112,7 +111,7 @@ namespace FurniMove.Controllers
         [HttpPatch("updateUser")]
         public async Task<IActionResult> UpdateUser(UpdateUserDTO updateDTO)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest("Fill all forms!");
 
             var userId = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(userId);
@@ -136,7 +135,7 @@ namespace FurniMove.Controllers
             var userDTO = _mapper.Map<UserDTO>(user);
             if (result) return Ok(userDTO);
 
-            return BadRequest();
+            return BadRequest("Invalid information!");
         }
 
         /*
@@ -194,7 +193,7 @@ namespace FurniMove.Controllers
         [HttpPost("addUserImg")]
         public async Task<IActionResult> AddUserImg(IFormFile img)
         {
-            var fileResult = _fileService.SaveImage(img, "ProfilePictures");
+            var fileResult = await _fileService.SaveImage(img, "ProfilePictures");
             var id = _http.HttpContext?.User.Claims?.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(id);
             if(user == null) return NotFound();

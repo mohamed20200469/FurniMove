@@ -41,9 +41,13 @@ namespace FurniMove.Controllers
         {
             var moveOffer = _mapper.Map<MoveOffer>(moveOfferDTO);
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var serviceProvider = await _userManager.FindByIdAsync(serviceProviderId!);
+            var serviceProvider = await _userManager.FindByIdAsync(serviceProviderId!);                    
 
-            if (serviceProvider!.Suspended) return Unauthorized("User is suspended!"); 
+            if (serviceProvider!.Suspended) return Unauthorized("User is suspended!");
+            if (await _moveOfferService.Offered((int)moveOffer.MoveRequestId!, serviceProviderId!))
+            {
+                return BadRequest("Already created an offer for this move request!");
+            }
 
             moveOffer.ServiceProviderId = serviceProviderId;
 
@@ -54,12 +58,24 @@ namespace FurniMove.Controllers
                 return BadRequest("No suitable truck available!");
             }
 
+            if (moveRequest.Status != "Created")
+            {
+                return BadRequest("Move is already booked!");
+            }
+
+            var max = await _moveOfferService.GetMaxCost(moveOfferDTO.moveRequestId);
+
+            if (moveOfferDTO.price > max)
+            {
+                return BadRequest($"Offer is too high, maximum price is {max} Egyptian Pounds!");
+            }
+
             bool result = await _moveOfferService.CreateMoveOffer(moveOffer);
             if (result)
             {
                 return Created(nameof(GetMoveOfferById), moveOffer);
             }
-            return NotFound();
+            return NotFound("Failure");
         }
 
         [HttpGet("Offer/{id}")]
@@ -73,10 +89,18 @@ namespace FurniMove.Controllers
         [HttpPost("AddTruck")]
         public async Task<IActionResult> AddTruck(TruckWriteDTO truckWriteDTO)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest("Invalid data");
 
-            if (truckWriteDTO.Year > 1980 && truckWriteDTO.Year < 2024)
-            if (truckWriteDTO.Year > 1980 && truckWriteDTO.Year < 2024)
+            var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var truck = await _truckService.GetTruckBySP(serviceProviderId!);
+
+            if (truck != null) return BadRequest("User already has a truck!");
+
+            var validation = await _truckService.ValidateAsync(truckWriteDTO);
+
+            if (!validation.Item1) return BadRequest(validation.Item2);
+
+            else
             {
                 var Truck = _mapper.Map<Truck>(truckWriteDTO);
                 Truck.ServiceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -85,9 +109,8 @@ namespace FurniMove.Controllers
                 {
                     return Ok(Truck);
                 }
-                return BadRequest();
+                return BadRequest("Failure");
             }
-            return BadRequest("Invalid year");
         }
 
 
@@ -128,8 +151,8 @@ namespace FurniMove.Controllers
             if (move.serviceProviderId != serviceProviderId) return BadRequest();
 
             var result = await _moveRequestService.StartMove(moveId);
-            if (result) return Ok();
-            return BadRequest();
+            if (result) return Ok("Move started!");
+            return BadRequest("Failure");
         }
 
         [HttpPut("EndMove")]
@@ -137,30 +160,40 @@ namespace FurniMove.Controllers
         {
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var move = await _moveRequestService.GetMoveRequest(moveId);
-            if (move.serviceProviderId != serviceProviderId) return BadRequest();
+            if (move.serviceProviderId != serviceProviderId) return Unauthorized("Access denied!");
 
             var result = await _moveRequestService.EndMove(moveId);
             if (result) return Ok();
-            return BadRequest();
+            return BadRequest("Failure!");
         }
 
         [HttpDelete("DeleteOffer")]
         public async Task<IActionResult> DeleteOffer(int OfferId)
         {
+            var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var offer = await _moveOfferService.GetMoveOfferById(OfferId);
+            
+            if (offer == null) return NotFound();
+            if (offer.ServiceProviderId != userId) return Unauthorized();
+
             var result = await _moveOfferService.DeleteMoveOfferById(OfferId);
             if(result) return Ok("Offer deleted successfully!");
             return Ok("Offer doesn't exist or is already Accepted!");
         }
 
         [HttpPatch("UpdateTruck")]
-        public async Task<IActionResult> UpdateTruck(TruckWriteDTO truck)
+        public async Task<IActionResult> UpdateTruck(TruckWriteDTO truckDTO)
         {
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            var result = await _truckService.UpdateTruck(truck, serviceProviderId);
 
-            if (result) return Ok(truck);
-            return NotFound();
+            var validation = await _truckService.ValidateAsync(truckDTO);
+
+            if (!validation.Item1) return BadRequest(validation.Item2);
+
+            var result = await _truckService.UpdateTruck(truckDTO, serviceProviderId);
+
+            if (result) return Ok(truckDTO);
+            return NotFound("No truck yet");
         }
 
         [HttpGet("GetAppliancesByMove")]
@@ -182,7 +215,7 @@ namespace FurniMove.Controllers
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var truck = await _truckService.GetTruckBySP(serviceProviderId);
 
-            if (truck == null) return NotFound();
+            if (truck == null) return NotFound("No truck yet");
 
             return Ok(truck);
         }
@@ -195,7 +228,7 @@ namespace FurniMove.Controllers
 
             var moveDTO = await _moveRequestService.GetTodaysMove(serviceProviderId!);
 
-            if (moveDTO == null) return NotFound();
+            if (moveDTO == null) return NotFound("No moves today");
             return Ok(moveDTO);
         }
         //[HttpGet("GetOngoingMove")]
