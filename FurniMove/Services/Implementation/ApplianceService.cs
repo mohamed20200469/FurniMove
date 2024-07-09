@@ -29,7 +29,7 @@ namespace FurniMove.Services.Implementation
         {
             var move = await _moveRequestService.GetMoveRequest(moveId);
             if (move == null) return null;
-            var result = _fileService.SaveImage(img, $"{moveId}");
+            var result = await _fileService.SaveImage(img, $"{moveId}");
             if (result.Item1 == 0) return null;
             var _description = await _roboflowService.GetInferenceResultAsync(uri + '/' + result.Item2);
             var appliance = new Appliance

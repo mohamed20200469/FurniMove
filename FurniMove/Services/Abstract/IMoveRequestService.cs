@@ -20,5 +20,6 @@ namespace FurniMove.Services.Abstract
         Task<MoveRequestReadDTO?> GetTodaysMove(string serviceProviderId);
         Task<List<MoveRequestReadDTO>> GetCustomerHistory(string customerId);
         Task<MoveRequest?> GetMoveRequestByUserId(string userId);
+        Task<(bool, string)> Validate(MoveRequestWriteDTO dto);
     }
 }

@@ -2,11 +2,9 @@
 using FurniMove.DTOs;
 using FurniMove.Models;
 using FurniMove.Services.Abstract;
-using FurniMove.Services.Implementation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using System.Security.Claims;
 
 namespace FurniMove.Controllers
@@ -52,8 +50,8 @@ namespace FurniMove.Controllers
                 return BadRequest(ModelState);
 
             var location = _mapper.Map<Location>(locationWriteDTO);
-            var time = DateTime.UtcNow;
-            location.timeStamp = time.AddHours(3);
+            var time = await _mapService.GetLocalTime();
+            location.timeStamp = time;
 
             var result = await _locationService.CreateLocation(location);
             if (result)
@@ -70,37 +68,38 @@ namespace FurniMove.Controllers
             var userId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var user = await _userManager.FindByIdAsync(userId!);
 
+
             if (user!.Suspended) return Unauthorized("User is suspended!");
 
-            if (moveRequestWriteDTO.numOfAppliances > 0)
+            var result = await _moveRequestService.Validate(moveRequestWriteDTO);
+
+            if (result.Item1 == false) return BadRequest(result.Item2);
+
+            var moveRequestReadDTO = await _moveRequestService.CreateMoveRequest(moveRequestWriteDTO, userId!);
+            if (moveRequestReadDTO != null)
             {
-                var moveRequestReadDTO = await _moveRequestService.CreateMoveRequest(moveRequestWriteDTO, userId!);
-                if (moveRequestReadDTO != null)
-                {
-                    user.MoveCounter++;
-                    await _userManager.UpdateAsync(user);
-                    return Created(nameof(CreateMoveRequest), moveRequestReadDTO);
-                }
-                return BadRequest("User already has an ongoing move request!");
+                user.MoveCounter++;
+                await _userManager.UpdateAsync(user);
+                return Created(nameof(CreateMoveRequest), moveRequestReadDTO);
             }
-            return BadRequest();
+            else return BadRequest("User already has an ongoing move request!");
         }
 
-        [HttpGet("GetAddress")]
-        public async Task<IActionResult> GetAddress(int locationId)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpGet("GetAddress")]
+        //public async Task<IActionResult> GetAddress(int locationId)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var location = await _locationService.GetLocationById(locationId);
+        //    var location = await _locationService.GetLocationById(locationId);
 
-            if (location == null) return NotFound();
+        //    if (location == null) return NotFound();
 
-            var address = await _mapService.GetAddress(location.latitude, location.longitude);
-            return Ok(address);
-        }
+        //    var address = await _mapService.GetAddress(location.latitude, location.longitude);
+        //    return Ok(address);
+        //}
 
         [HttpGet("GetOffers")]
         public async Task<IActionResult> GetOffers()
@@ -136,7 +135,7 @@ namespace FurniMove.Controllers
             var move = await _moveRequestService.GetMoveRequestByUserId(userId);
             if (move == null || move.truckId != Id)
             {
-                return Unauthorized();
+                return Unauthorized("Access denied!");
             }
             var location = await _truckService.GetTruckLocation(Id);
             if (location != null)
@@ -156,8 +155,8 @@ namespace FurniMove.Controllers
             if (move.customerId != userId) return Unauthorized();
 
             var result = await _moveRequestService.RateMove(MoveId, Rate);
-            if (result) return Ok();
-            return NotFound();
+            if (result) return Ok("Rate submitted!");
+            return NotFound("Failure");
         }
 
         //[HttpPut("AddApplianceTags")]
@@ -177,12 +176,12 @@ namespace FurniMove.Controllers
             var move = await _moveRequestService.GetMoveRequestByUserId(userId);
             var offer = await _moveOfferService.GetMoveOfferById(Id);
             
-            if (offer == null) return NotFound();
-            if (move == null) return BadRequest();
-            if (offer.MoveRequestId != move.Id) return Unauthorized();
+            if (offer == null) return NotFound("Failure");
+            if (move == null) return BadRequest("Failure");
+            if (offer.MoveRequestId != move.Id) return Unauthorized("Failure");
 
             var result = await _moveOfferService.AcceptMoveOffer(Id);
-            if (result) return Ok();
+            if (result) return Ok("Offer accepted!");
             return NotFound();
         }
 
@@ -216,7 +215,7 @@ namespace FurniMove.Controllers
             {
                 return Ok(moveDTO);
             }
-            return NotFound();
+            return NotFound("No current move!");
         }
 
         [HttpGet("GetHistory")]

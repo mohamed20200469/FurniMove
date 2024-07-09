@@ -66,6 +66,29 @@ namespace FurniMove.Services.Implementation
             else return null;
         }
 
+        public async Task<(bool, string)> Validate(MoveRequestWriteDTO dto)
+        {
+            var dateTime = await _mapService.GetLocalTime();
+            DateOnly currentDate = DateOnly.FromDateTime(dateTime);
+
+            if (dto.StartDate < currentDate)
+            {
+                return (false, "Date is in the past!");
+            }
+
+            if (dto.numOfAppliances <= 0)
+            {
+                return (false, "Number of appliances must exceed 0");
+            }
+
+            if (dto.VehicleType != "Van" && dto.VehicleType != "Truck" && dto.VehicleType != "Pickup")
+            {
+                return (false, "Vehicle types are either Van, Truck or Pickup!");
+            }
+
+            return (true, "Success");
+        }
+
         public async Task<MoveRequestReadDTO?> GetMoveRequestDTOById(int id)
         {
             var moveRequest = await _moveRequestRepo.GetMoveRequestByIdAsync(id);

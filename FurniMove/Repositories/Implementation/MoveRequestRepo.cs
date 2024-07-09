@@ -80,7 +80,7 @@ namespace FurniMove.Repositories.Implementation
         public async Task<MoveRequest?> GetTodaysMove(string serviceProviderId, DateTime dateTime)
         {
             DateOnly today = DateOnly.FromDateTime(dateTime);
-            var move = await _db.MoveRequests.FirstOrDefaultAsync(x => x.serviceProviderId == serviceProviderId && x.startDate == today);
+            var move = await _db.MoveRequests.FirstOrDefaultAsync(x => x.serviceProviderId == serviceProviderId && x.startDate == today && x.status != "Completed");
             return move;
         }
     }

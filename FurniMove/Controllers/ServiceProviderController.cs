@@ -75,7 +75,7 @@ namespace FurniMove.Controllers
             {
                 return Created(nameof(GetMoveOfferById), moveOffer);
             }
-            return NotFound();
+            return NotFound("Failure");
         }
 
         [HttpGet("Offer/{id}")]
@@ -89,7 +89,7 @@ namespace FurniMove.Controllers
         [HttpPost("AddTruck")]
         public async Task<IActionResult> AddTruck(TruckWriteDTO truckWriteDTO)
         {
-            if (!ModelState.IsValid) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest("Invalid data");
 
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var truck = await _truckService.GetTruckBySP(serviceProviderId!);
@@ -109,7 +109,7 @@ namespace FurniMove.Controllers
                 {
                     return Ok(Truck);
                 }
-                return BadRequest();
+                return BadRequest("Failure");
             }
         }
 
@@ -151,8 +151,8 @@ namespace FurniMove.Controllers
             if (move.serviceProviderId != serviceProviderId) return BadRequest();
 
             var result = await _moveRequestService.StartMove(moveId);
-            if (result) return Ok();
-            return BadRequest();
+            if (result) return Ok("Move started!");
+            return BadRequest("Failure");
         }
 
         [HttpPut("EndMove")]
@@ -160,11 +160,11 @@ namespace FurniMove.Controllers
         {
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var move = await _moveRequestService.GetMoveRequest(moveId);
-            if (move.serviceProviderId != serviceProviderId) return BadRequest();
+            if (move.serviceProviderId != serviceProviderId) return Unauthorized("Access denied!");
 
             var result = await _moveRequestService.EndMove(moveId);
             if (result) return Ok();
-            return BadRequest();
+            return BadRequest("Failure!");
         }
 
         [HttpDelete("DeleteOffer")]
@@ -193,7 +193,7 @@ namespace FurniMove.Controllers
             var result = await _truckService.UpdateTruck(truckDTO, serviceProviderId);
 
             if (result) return Ok(truckDTO);
-            return NotFound();
+            return NotFound("No truck yet");
         }
 
         [HttpGet("GetAppliancesByMove")]
@@ -215,7 +215,7 @@ namespace FurniMove.Controllers
             var serviceProviderId = _http.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var truck = await _truckService.GetTruckBySP(serviceProviderId);
 
-            if (truck == null) return NotFound();
+            if (truck == null) return NotFound("No truck yet");
 
             return Ok(truck);
         }
@@ -228,7 +228,7 @@ namespace FurniMove.Controllers
 
             var moveDTO = await _moveRequestService.GetTodaysMove(serviceProviderId!);
 
-            if (moveDTO == null) return NotFound();
+            if (moveDTO == null) return NotFound("No moves today");
             return Ok(moveDTO);
         }
         //[HttpGet("GetOngoingMove")]
